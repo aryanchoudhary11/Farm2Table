@@ -1,4 +1,4 @@
-import bannerImage from "../assets/hero.avif";
+import bannerImage from "../../assets/hero.avif";
 
 const HeroBanner = () => {
   return (

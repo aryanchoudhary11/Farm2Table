@@ -1,9 +1,11 @@
-import HeroBanner from "../components/HeroBanner";
+import Banner from "../components/Home/Banner";
+import Purpose from "../components/Home/Purpose";
 
 const Home = () => {
   return (
     <div>
-      <HeroBanner />
+      <Banner />
+      <Purpose />
     </div>
   );
 };
