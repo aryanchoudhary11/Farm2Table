@@ -1,11 +1,13 @@
 import Banner from "../components/Home/Banner";
-import Purpose from "../components/Home/Purpose";
+import Why from "../components/Home/Why";
+import Working from "../components/Home/Working";
 
 const Home = () => {
   return (
     <div>
       <Banner />
-      <Purpose />
+      <Why />
+      <Working />
     </div>
   );
 };
