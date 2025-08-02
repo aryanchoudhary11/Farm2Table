@@ -1,33 +1,39 @@
 const Footer = () => {
   return (
-    <footer>
-      <div>
+    <footer className="bg-gray-100 text-gray-800 py-10 px-4">
+      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
         <div>
-          <h2>Farm2Table</h2>
-          <p>
-            Connecting local farmers with your table — fresh, fast, and fair.
-          </p>
+          <h2 className="text-2xl font-bold text-green-900 mb-2">Farm2Table</h2>
+          <p className="text-sm">Connecting local farmers with your table.</p>
         </div>
         <div>
-          <h3>Quick Links</h3>
-          <ul>
+          <h3 className="text-lg font-semibold mb-2">Quick Links</h3>
+          <ul className="space-y-2 text-sm">
             <li>
-              <a href="#">About</a>
+              <a href="#" className="hover:text-green-900">
+                About
+              </a>
             </li>
             <li>
-              <a href="#">FAQ</a>
+              <a href="#" className="hover:text-green-900">
+                FAQ
+              </a>
             </li>
             <li>
-              <a href="#">Contact</a>
+              <a href="#" className="hover:text-green-900">
+                Contact
+              </a>
             </li>
             <li>
-              <a href="#">Login</a>
+              <a href="#" className="hover:text-green-900">
+                Login
+              </a>
             </li>
           </ul>
         </div>
         <div>
-          <h3>Follow Us</h3>
-          <div>
+          <h3 className="text-lg font-semibold mb-2">Follow Us</h3>
+          <div className="flex gap-4 mt-2">
             <a href="#" aria-label="Facebook">
               <i className="fab fa-facebook text-xl"></i>
             </a>
@@ -40,7 +46,7 @@ const Footer = () => {
           </div>
         </div>
       </div>
-      <div>
+      <div className="mt-8 border-t border-gray-700 pt-4 text-center text-sm">
         &copy; {new Date().getFullYear()} Farm2Table. All rights reserved.
       </div>
     </footer>
