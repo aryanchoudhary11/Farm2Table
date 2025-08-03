@@ -6,7 +6,7 @@ const Newsletter = () => {
     AOS.init({ duration: 800 });
   }, []);
   return (
-    <section className="bg-green-100 py-12 px-4 md:px-10 " data-aos="fade-up">
+    <section className="bg-green-100 py-12 px-4 md:px-10 " data-aos="zoom-in">
       <div className="max-w-4xl mx-auto text-center">
         <h2 className="text-3xl md:text-4xl font-bold text-green-900 mb-4">
           Want fresh Updates?
