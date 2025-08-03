@@ -1,5 +1,5 @@
 import { useState } from "react";
-
+import { Link } from "react-router-dom";
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const toggleMenu = () => setIsOpen(!isOpen);
@@ -8,18 +8,33 @@ const Navbar = () => {
       <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
         <div className="text-2xl font-bold text-green-700">Farm2Table</div>
         <div className="hidden md:flex items-center space-x-6 text-gray-800 font-medium">
-          <a href="#" className="hover:text-green-600 transition">
-            Home
-          </a>
-          <a href="#" className="hover:text-green-600 transition">
-            Contact
-          </a>
-          <a href="#" className="hover:text-green-600 transition">
-            Login
-          </a>
-          <a href="#" className="hover:text-green-600 transition">
-            Sign Up
-          </a>
+          <ul className="flex space-x-6 text-lg">
+            <li>
+              <Link to="/" className="hover:text-green-600">
+                Home
+              </Link>
+            </li>
+            <li>
+              <Link to="/about" className="hover:text-green-600">
+                About
+              </Link>
+            </li>
+            <li>
+              <Link to="/contact" className="hover:text-green-600">
+                Contact
+              </Link>
+            </li>
+            <li>
+              <Link to="/login" className="hover:text-green-600">
+                Login
+              </Link>
+            </li>
+            <li>
+              <Link to="/signup" className="hover:text-green-600">
+                Sign Up
+              </Link>
+            </li>
+          </ul>
         </div>
         <div className="md:hidden">
           <button
@@ -60,15 +75,33 @@ const Navbar = () => {
       </div>
       {isOpen && (
         <div className="md:hidden bg-white px-4 pb-4 space-y-3 text-gray-800 font-medium">
-          <a href="#" className="block hover:text-green-600 transition">
-            Home
-          </a>
-          <a href="#" className="block hover:text-green-600 transition">
-            Contact
-          </a>
-          <a href="#" className="block hover:text-green-600 transition">
-            Login
-          </a>
+          <ul className="flex space-x-6 text-lg">
+            <li>
+              <Link to="/" className="hover:text-green-600">
+                Home
+              </Link>
+            </li>
+            <li>
+              <Link to="/about" className="hover:text-green-600">
+                About
+              </Link>
+            </li>
+            <li>
+              <Link to="/contact" className="hover:text-green-600">
+                Contact
+              </Link>
+            </li>
+            <li>
+              <Link to="/login" className="hover:text-green-600">
+                Login
+              </Link>
+            </li>
+            <li>
+              <Link to="/signup" className="hover:text-green-600">
+                Sign Up
+              </Link>
+            </li>
+          </ul>
         </div>
       )}
     </nav>
