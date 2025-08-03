@@ -1,4 +1,10 @@
+import Intro from "../components/About/Intro";
+
 const About = () => {
-  return;
+  return (
+    <>
+      <Intro />
+    </>
+  );
 };
 export default About;
