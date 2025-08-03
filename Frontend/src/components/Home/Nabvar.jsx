@@ -4,19 +4,27 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const toggleMenu = () => setIsOpen(!isOpen);
   return (
-    <nav>
-      <div>
-        <div>Farm2Table</div>
-        <div>
-          <a href="#">Home</a>
-          <a href="#">Contact</a>
-          <a href="#">Login</a>
-          <a href="#">Sign Up</a>
+    <nav className="bg-white shadow-md fixed top-0 left-0 w-full z-50">
+      <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+        <div className="text-2xl font-bold text-green-700">Farm2Table</div>
+        <div className="hidden md:flex items-center space-x-6 text-gray-800 font-medium">
+          <a href="#" className="hover:text-green-600 transition">
+            Home
+          </a>
+          <a href="#" className="hover:text-green-600 transition">
+            Contact
+          </a>
+          <a href="#" className="hover:text-green-600 transition">
+            Login
+          </a>
+          <a href="#" className="hover:text-green-600 transition">
+            Sign Up
+          </a>
         </div>
         <div className="md:hidden">
           <button
             onClick={toggleMenu}
-            className="text-green-700 focus:outline-none"
+            className="text-green-700 focus:outline-none cursor-pointer"
           >
             {isOpen ? (
               <svg
