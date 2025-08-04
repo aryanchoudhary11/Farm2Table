@@ -68,7 +68,6 @@ const FAQAccordion = () => {
               )}
             </button>
 
-            {/* Animated answer section */}
             <div
               ref={(el) => (contentRefs.current[index] = el)}
               className="overflow-hidden transition-all duration-500 ease-in-out"

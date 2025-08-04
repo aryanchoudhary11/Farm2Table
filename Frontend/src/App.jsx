@@ -7,6 +7,7 @@ import Footer from "./components/Home/Footer";
 import FAQ from "./pages/FAQ";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import FarmerOnboarding from "./pages/FarmerOnboarding";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path="/faq" element={<FAQ />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Register />} />
+        <Route path="/farmer-onboarding" element={<FarmerOnboarding />} />
       </Routes>
       <Footer />
     </>
