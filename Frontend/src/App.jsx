@@ -11,6 +11,7 @@ import FarmerOnboarding from "./pages/FarmerOnboarding";
 import NotFound from "./pages/NotFound";
 import FarmerLayout from "./Layout/FarmerLayout";
 import FarmerDashboardHome from "./pages/FarmerDashboardHome";
+import AddProduct from "./pages/AddProduct";
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
         <Route path="*" element={<NotFound />} />
         <Route path="/farmer" element={<FarmerLayout />}>
           <Route index element={<FarmerDashboardHome />} />
+          <Route path="add-product" element={<AddProduct />} />
         </Route>
       </Routes>
       <Footer />

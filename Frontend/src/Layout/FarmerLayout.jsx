@@ -36,9 +36,6 @@ const FarmerLayout = () => {
 
       {/* Main Content */}
       <main className="flex-1 p-6 bg-gray-50">
-        <h1 className="text-3xl font-semibold text-gray-800 mb-4">
-          Farmer Dashboard
-        </h1>
         <Outlet />
       </main>
     </div>

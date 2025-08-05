@@ -1,5 +1,5 @@
 import bannerImage from "../../assets/hero.avif";
-
+import { Link } from "react-router-dom";
 const HeroBanner = () => {
   return (
     <section className="relative w-full h-[60vh] md:h-[70vh] lg:h-[75vh]">
@@ -22,9 +22,12 @@ const HeroBanner = () => {
             <button className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg cursor-pointer transition-all duration-300 ease-in-out">
               Shop Now
             </button>
-            <button className="border rounded-lg py-2 px-6 font-semibold hover:bg-green-600 hover:text-white cursor-pointer transition-all duration-300 ease-in-out">
+            <Link
+              to="/farmer-onboarding"
+              className="border rounded-lg py-2 px-6 font-semibold hover:bg-green-600 hover:text-white cursor-pointer transition-all duration-300 ease-in-out"
+            >
               Become a farmer partner
-            </button>
+            </Link>
           </div>
         </div>
       </div>
