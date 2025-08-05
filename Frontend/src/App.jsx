@@ -9,6 +9,8 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import FarmerOnboarding from "./pages/FarmerOnboarding";
 import NotFound from "./pages/NotFound";
+import FarmerLayout from "./Layout/FarmerLayout";
+import FarmerDashboardHome from "./pages/FarmerDashboardHome";
 
 function App() {
   return (
@@ -23,6 +25,9 @@ function App() {
         <Route path="/signup" element={<Register />} />
         <Route path="/farmer-onboarding" element={<FarmerOnboarding />} />
         <Route path="*" element={<NotFound />} />
+        <Route path="/farmer" element={<FarmerLayout />}>
+          <Route index element={<FarmerDashboardHome />} />
+        </Route>
       </Routes>
       <Footer />
     </>
