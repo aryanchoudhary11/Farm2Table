@@ -8,7 +8,7 @@ const Hero = () => {
     AOS.init({ duration: 800 });
   });
   return (
-    <section className="bg-green-50 py-12 px-4 md:px-10 lg:flex lg:items-center lg:justify-between">
+    <section className="bg-green-50 py-14 px-6 md:px-18 lg:flex lg:items-center lg:justify-between">
       <div className="max-w-xl mb-10 lg:mb-0">
         <h1 className="text-4xl md:text-5xl font-extrabold text-green-800 mb-4">
           Join the Fresh Movement
@@ -23,7 +23,10 @@ const Hero = () => {
           Get Started
         </Link>
       </div>
-      <div className="flex-shrink-0 w-full lg:w-[45%]" data-aos="fade-left">
+      <div
+        className="flex-shrink-0 w-full lg:w-[35%] max-w-md"
+        data-aos="fade-left"
+      >
         <img
           src={happyFarmer}
           alt="Happy farmer"
