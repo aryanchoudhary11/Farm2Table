@@ -8,6 +8,7 @@ import FAQ from "./pages/FAQ";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import FarmerOnboarding from "./pages/FarmerOnboarding";
+import NotFound from "./pages/NotFound";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Register />} />
         <Route path="/farmer-onboarding" element={<FarmerOnboarding />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
       <Footer />
     </>
