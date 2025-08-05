@@ -12,6 +12,8 @@ import NotFound from "./pages/NotFound";
 import FarmerLayout from "./Layout/FarmerLayout";
 import FarmerDashboardHome from "./pages/FarmerDashboardHome";
 import AddProduct from "./pages/AddProduct";
+import MyProducts from "./pages/MyProducts";
+import TrackOrders from "./pages/TrackOrders";
 
 function App() {
   return (
@@ -29,6 +31,8 @@ function App() {
         <Route path="/farmer" element={<FarmerLayout />}>
           <Route index element={<FarmerDashboardHome />} />
           <Route path="add-product" element={<AddProduct />} />
+          <Route path="my-products" element={<MyProducts />} />
+          <Route path="orders" element={<TrackOrders />} />
         </Route>
       </Routes>
       <Footer />
