@@ -31,33 +31,37 @@ const TrackOrders = () => {
     );
   };
   return (
-    <div className="mt-15">
-      <h2>Track Orders</h2>
+    <div className="mt-15 space-y-6">
+      <h2 className="text-2xl font-semibold text-green-700">Track Orders</h2>
       {ordersMock.map((order) => (
-        <div key={order.id}>
-          <div>
+        <div
+          key={order.id}
+          className="bg-white rounded-lg shadow p-4 border border-gray-200 space-y-3"
+        >
+          <div className="flex flex-col md:flex-row md:items-center justify-between">
             <div>
-              <h3>
-                <FaBoxOpen />
-                Order id: <span>{order.id}</span>
+              <h3 className="text-lg font-bold text-gray-800">
+                <FaBoxOpen className="inline mr-2 text-green-600" />
+                Order ID: <span className="text-gray-700">{order.id}</span>
               </h3>
-              <p>
-                <FaUser />
+              <p className="text-sm text-gray-600 mt-1">
+                <FaUser className="inline mr-1" />
                 {order.customerName}
               </p>
-              <p>
-                <FaMapMarkerAlt />
+              <p className="text-sm text-gray-600">
+                <FaMapMarkerAlt className="inline mr-1" />
                 {order.address}
               </p>
             </div>
-            <div>
-              <FaClock />
-              <span>Expected: </span> {order.deliveryTime}
+            <div className="text-sm text-gray-600 mt-3 md:mt-0">
+              <FaClock className="inline mr-1" />
+              <span className="font-medium">Expected: </span>{" "}
+              {order.deliveryTime}
             </div>
           </div>
-          <div>
-            <span>Items Ordered:</span>
-            <ul>
+          <div className="text-sm">
+            <span className="font-medium">Items Ordered:</span>
+            <ul className="list-disc ml-6 mt-1">
               {order.items.map((item, idx) => (
                 <li key={idx}>
                   {item.name} - Qty: {item.qty}
@@ -65,14 +69,40 @@ const TrackOrders = () => {
               ))}
             </ul>
           </div>
-          <div>
-            <div>
-              <span>Status: </span> <span>{order.status}</span>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <div className="text-sm">
+              <span className="font-medium">Status: </span>
+              <span
+                className={`inline-block px-2 py-1 rounded-full text-xs ${
+                  order.status === "Pending"
+                    ? "bg-yellow-100 text-yellow-700"
+                    : order.status === "Packed"
+                    ? "bg-blue-100 text-blue-700"
+                    : "bg-green-100 text-green-700"
+                }`}
+              >
+                {order.status}
+              </span>
             </div>
-          </div>
-          <div>
-            {order.status === "Pending" && <button>Mark as Packed</button>}
-            {order.status === "Packed" && <button>Mark as Delivered</button>}
+
+            <div className="flex gap-2">
+              {order.status === "Pending" && (
+                <button
+                  onClick={() => handleStatusChange(order.id, "Packed")}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm cursor-pointer"
+                >
+                  Mark as Packed
+                </button>
+              )}
+              {order.status === "Packed" && (
+                <button
+                  onClick={() => handleStatusChange(order.id, "Packed")}
+                  className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm cursor-pointer"
+                >
+                  Mark as Delivered
+                </button>
+              )}
+            </div>
           </div>
         </div>
       ))}
