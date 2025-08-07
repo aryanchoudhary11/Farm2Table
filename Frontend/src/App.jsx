@@ -14,6 +14,7 @@ import FarmerDashboardHome from "./pages/FarmerDashboardHome";
 import AddProduct from "./pages/AddProduct";
 import MyProducts from "./pages/MyProducts";
 import TrackOrders from "./pages/TrackOrders";
+import ProductDiscovery from "./pages/Customer/ProductDiscovery";
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
           <Route path="my-products" element={<MyProducts />} />
           <Route path="orders" element={<TrackOrders />} />
         </Route>
+        <Route path="/customer" element={<ProductDiscovery />} />
       </Routes>
       <Footer />
     </>

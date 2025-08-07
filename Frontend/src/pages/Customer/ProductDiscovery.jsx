@@ -1,0 +1,140 @@
+import { useEffect, useState } from "react";
+
+const products = [
+  {
+    id: 1,
+    name: "Tomatoes",
+    category: "Vegetables",
+    price: 30,
+    stock: 20,
+    farmer: "Green Farm",
+    image:
+      "https://theworldonaplatter.com/wp-content/uploads/2020/08/tomato-basket-912.jpg",
+  },
+  {
+    id: 2,
+    name: "Bananas",
+    category: "Fruits",
+    price: 50,
+    stock: 0,
+    farmer: "Tropical Growers",
+    image:
+      "https://nutritionsource.hsph.harvard.edu/wp-content/uploads/2018/08/bananas-1354785_1920.jpg",
+  },
+  {
+    id: 3,
+    name: "Milk",
+    category: "Dairy",
+    price: 60,
+    stock: 10,
+    farmer: "Happy Cow Dairy",
+    image:
+      "https://thumbs.dreamstime.com/b/fresh-organic-milk-nature-background-49456608.jpg",
+  },
+];
+const ProductDiscovery = () => {
+  const [userLocation, setUserLocation] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [filteredProducts, setFilteredProducts] = useState(products);
+
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setUserLocation(
+          `Lat: ${position.coords.latitude}, Lon: ${position.coords.longitude}`
+        );
+      },
+      () => {
+        setUserLocation("Unbale to detect, Please enter pincode manually");
+      }
+    );
+  }, []);
+  useEffect(() => {
+    let filtered = products;
+    if (searchTerm) {
+      filtered = filtered.filter((p) =>
+        p.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    if (selectedCategory) {
+      filtered = filtered.filter((p) => p.category === selectedCategory);
+    }
+    setFilteredProducts(filtered);
+  }, [searchTerm, selectedCategory]);
+  return (
+    <div className="p-4 md:p-8 mt-15">
+      <h1 className="text-2xl font-semibold mb-4 text-green-700">
+        Find Fresh Products Near You
+      </h1>
+      <div className="bg-white p-4 rounded-lg shadow flex items-center justify-between">
+        <span className="text-gray-700">
+          📍 <strong>Your Location:</strong> {userLocation}
+        </span>
+        <button className="text-sm text-green-600 hover:underline cursor-pointer">
+          Change Pincode
+        </button>
+      </div>
+      <div className="flex flex-col md:flex-row gap-4 mt-4">
+        <input
+          type="text"
+          placeholder="Search Products..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="border p-2 rounded w-full md:w-1/2"
+        />
+        <select
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+          className="border p-2 rounded w-full md:w-1/4"
+        >
+          <option value="">All Categories</option>
+          <option value="Vegetables">Vegetables</option>
+          <option value="Fruits">Fruits</option>
+          <option value="Dairy">Dairy</option>
+        </select>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+        {filteredProducts.map((product) => (
+          <div className=" bg-white shadow-md rounded-lg overflow-hidden">
+            <img
+              src={product.image}
+              alt={product.name}
+              className="w-full h-40 object-cover"
+            />
+            <div className="p-4">
+              <h2 className="text-lg font-semibold">{product.name}</h2>
+              <p className="text-sm text-gray-500">by {product.farmer}</p>
+              <div className="mt-2 flex justify-between items-center">
+                <span className="text-green-600 font-bold">
+                  ₹{product.price}
+                </span>
+                <span
+                  className={`text-xs px-2 py-1 rounded ${
+                    product.stock > 0
+                      ? "bg-green-100 text-green-700"
+                      : "bg-red-100 text-red-600"
+                  }`}
+                >
+                  {product.stock > 0 ? "In Stock" : "Out of Stock"}
+                </span>
+              </div>
+              <div className="mt-3 flex items-center gap-2">
+                <input
+                  type="number"
+                  min="1"
+                  defaultValue={1}
+                  className="w-16 p-1 border rounded"
+                />
+                <button className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 cursor-pointer">
+                  🛒 Add to Cart
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+export default ProductDiscovery;
