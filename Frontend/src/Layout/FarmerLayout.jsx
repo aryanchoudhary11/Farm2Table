@@ -11,9 +11,6 @@ const FarmerLayout = () => {
     <div className="min-h-screen flex">
       {/* Sidebar */}
       <aside className="w-64 bg-green-100 p-4 shadow-md">
-        <div className="mb-6 text-2xl font-bold text-green-800 px-4">
-          Farmer Panel
-        </div>
         <nav className="flex flex-col gap-2">
           <NavLink to="/farmer" className={navLinkClasses} end>
             <LayoutDashboard size={20} />

@@ -15,6 +15,8 @@ import AddProduct from "./pages/AddProduct";
 import MyProducts from "./pages/MyProducts";
 import TrackOrders from "./pages/TrackOrders";
 import ProductDiscovery from "./pages/Customer/ProductDiscovery";
+import CustomerLayout from "./Layout/CustomerLayout";
+import Cart from "./pages/Customer/Cart";
 
 function App() {
   return (
@@ -35,7 +37,10 @@ function App() {
           <Route path="my-products" element={<MyProducts />} />
           <Route path="orders" element={<TrackOrders />} />
         </Route>
-        <Route path="/customer" element={<ProductDiscovery />} />
+        <Route path="/customer" element={<CustomerLayout />}>
+          <Route index element={<ProductDiscovery />} />
+          <Route path="cart" element={<Cart />} />
+        </Route>
       </Routes>
       <Footer />
     </>
