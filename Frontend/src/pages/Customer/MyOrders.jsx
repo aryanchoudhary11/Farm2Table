@@ -49,6 +49,21 @@ const MyOrders = () => {
                 </p>
                 <p className="text-sm text-gray-400">📅 {order.date}</p>
               </div>
+              <div className="flex flex-col md:items-end mt-3 md:mt-0">
+                <span
+                  className={`px-3 py-1 rounded-full border text-sm font-medium ${
+                    statusColors[order.status]
+                  }`}
+                >
+                  {order.status}
+                </span>
+                <p className="font-bold text-green-700 mt-2"> ₹{order.total}</p>
+              </div>
+            </div>
+            <div className="mt-4 text-right">
+              <button className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 cursor-pointer transition">
+                Track Order
+              </button>
             </div>
           </motion.div>
         ))}
