@@ -19,9 +19,12 @@ const HeroBanner = () => {
             Ethical, hyperlocal groceries delivered same-day.
           </p>
           <div className="gap-3 flex justify-center">
-            <button className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg cursor-pointer transition-all duration-300 ease-in-out">
+            <Link
+              to="/customer"
+              className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg cursor-pointer transition-all duration-300 ease-in-out"
+            >
               Shop Now
-            </button>
+            </Link>
             <Link
               to="/farmer-onboarding"
               className="border rounded-lg py-2 px-6 font-semibold hover:bg-green-600 hover:text-white cursor-pointer transition-all duration-300 ease-in-out"

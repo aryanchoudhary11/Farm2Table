@@ -17,6 +17,7 @@ import TrackOrders from "./pages/TrackOrders";
 import ProductDiscovery from "./pages/Customer/ProductDiscovery";
 import CustomerLayout from "./Layout/CustomerLayout";
 import Cart from "./pages/Customer/Cart";
+import Checkout from "./pages/Customer/Checkout";
 
 function App() {
   return (
@@ -40,6 +41,7 @@ function App() {
         <Route path="/customer" element={<CustomerLayout />}>
           <Route index element={<ProductDiscovery />} />
           <Route path="cart" element={<Cart />} />
+          <Route path="checkout" element={<Checkout />} />
         </Route>
       </Routes>
       <Footer />
