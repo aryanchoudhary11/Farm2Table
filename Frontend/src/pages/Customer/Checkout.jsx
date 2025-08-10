@@ -14,7 +14,7 @@ const Checkout = () => {
   const placeOrderhandler = () => {
     setSuccessMessage("✅ Order placed successfully!");
     setTimeout(() => {
-      navigate("/my-orders");
+      navigate("/customer/my-orders");
     }, 1500);
   };
   return (

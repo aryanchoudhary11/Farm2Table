@@ -18,6 +18,7 @@ import ProductDiscovery from "./pages/Customer/ProductDiscovery";
 import CustomerLayout from "./Layout/CustomerLayout";
 import Cart from "./pages/Customer/Cart";
 import Checkout from "./pages/Customer/Checkout";
+import MyOrders from "./pages/Customer/myOrders";
 
 function App() {
   return (
@@ -42,6 +43,7 @@ function App() {
           <Route index element={<ProductDiscovery />} />
           <Route path="cart" element={<Cart />} />
           <Route path="checkout" element={<Checkout />} />
+          <Route path="my-orders" element={<MyOrders />} />
         </Route>
       </Routes>
       <Footer />
