@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 const orders = [
   {
     id: "ORD12345",
@@ -29,6 +30,7 @@ const statusColors = {
   Delivered: "bg-green-100 text-green-700 border-green-300",
 };
 const MyOrders = () => {
+  const navigate = useNavigate();
   return (
     <div className="p-4 md:p-8 mt-15 bg-green-50 min-h-screen">
       <h1 className="text-2xl font-bold text-green-800 mb-6">My Orders</h1>
@@ -61,7 +63,10 @@ const MyOrders = () => {
               </div>
             </div>
             <div className="mt-4 text-right">
-              <button className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 cursor-pointer transition">
+              <button
+                onClick={() => navigate("/customer/track-order")}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 cursor-pointer transition"
+              >
                 Track Order
               </button>
             </div>

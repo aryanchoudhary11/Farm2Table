@@ -19,6 +19,7 @@ import CustomerLayout from "./Layout/CustomerLayout";
 import Cart from "./pages/Customer/Cart";
 import Checkout from "./pages/Customer/Checkout";
 import MyOrders from "./pages/Customer/myOrders";
+import MyOrderTrack from "./pages/Customer/MyOrderTrack";
 
 function App() {
   return (
@@ -44,6 +45,7 @@ function App() {
           <Route path="cart" element={<Cart />} />
           <Route path="checkout" element={<Checkout />} />
           <Route path="my-orders" element={<MyOrders />} />
+          <Route path="track-order" element={<MyOrderTrack />} />
         </Route>
       </Routes>
       <Footer />
