@@ -2,16 +2,17 @@ import mongoose from "mongoose";
 
 const orderSchema = new mongoose.Schema(
   {
-    customer: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
     farmer: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
+    customer: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    address: { type: String, required: true },
     products: [
       {
         product: {
@@ -19,46 +20,15 @@ const orderSchema = new mongoose.Schema(
           ref: "Product",
           required: true,
         },
-        quantity: {
-          type: Number,
-          required: true,
-          min: [1, "Quantity must be at least 1"],
-        },
-        price: {
-          type: Number,
-          required: true,
-        },
+        quantity: { type: Number, required: true },
       },
     ],
-    totalAmount: {
-      type: Number,
-      required: true,
-    },
     status: {
       type: String,
-      enum: [
-        "pending",
-        "confirmed",
-        "out for delivery",
-        "delivered",
-        "cancelled",
-      ],
-      default: "pending",
+      enum: ["Pending", "Packed", "Delivered"],
+      default: "Pending",
     },
-    deliveryAdress: {
-      type: String,
-      required: true,
-    },
-    paymentMethod: {
-      type: String,
-      enum: ["wallet", "razorpay", "cod"],
-      required: true,
-    },
-    paymentStatus: {
-      type: String,
-      enum: ["pending", "paid", "failed"],
-      default: "pending",
-    },
+    deliveryTime: { type: Date },
   },
   { timestamps: true }
 );
