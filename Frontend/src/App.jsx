@@ -40,7 +40,7 @@ function App() {
           <Route path="my-products" element={<MyProducts />} />
           <Route path="orders" element={<TrackOrders />} />
         </Route>
-        <Route path="/customer" element={<CustomerLayout />}>
+        <Route path="/products" element={<CustomerLayout />}>
           <Route index element={<ProductDiscovery />} />
           <Route path="cart" element={<Cart />} />
           <Route path="checkout" element={<Checkout />} />
