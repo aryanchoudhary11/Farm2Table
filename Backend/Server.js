@@ -15,7 +15,7 @@ app.use(express.json());
 app.use(cors());
 app.use(morgan("dev"));
 app.use("/api/auth", authRoutes);
-app.use("/farmer", farmerRoutes);
+app.use("/api/farmer", farmerRoutes);
 // Basic test route
 app.get("/", (req, res) => {
   res.send("Farm2Table API is running...");

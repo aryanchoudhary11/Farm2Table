@@ -5,24 +5,58 @@ import {
   FaPlusCircle,
   FaEye,
 } from "react-icons/fa";
+import { useEffect, useState } from "react";
+import axios from "axios";
 const FarmerDashboardHome = () => {
-  const stats = [
+  const [stats, setStats] = useState([
     {
       title: "Total Products",
-      value: 12,
+      value: 0,
       icon: <FaBox className="text-3xl text-green-600" />,
     },
     {
       title: "Orders Received",
-      value: 28,
+      value: 0,
       icon: <FaClipboardList className="text-3xl text-green-600" />,
     },
     {
       title: "Wallet Balance",
-      value: "₹1,250",
+      value: "₹0",
       icon: <FaWallet className="text-3xl text-green-600" />,
     },
-  ];
+  ]);
+  useEffect(()=>{
+    const fetchDashboardstats = async ()=>{
+      try{
+        const token = localStorage.getItem("token");
+        const { data } = await axios.get("http://localhost:5000/api/farmer", {
+          headers:{
+            Authorization: `Bearer ${token}`
+          }
+        })
+        setStats([
+          {
+            title: "Total Products",
+            value: data.totalProducts,
+            icon:<FaBox className="text-3xl text-green-600" />,
+          },
+          {
+            title: "Orders received",
+            value: data.totalOrders,
+            icon: <FaClipboardList className="text-3xl text-green-600" />,
+          },
+          {
+            title: "Wallet Balance",
+            value: `₹${data.walletBalance}`,
+            icon: <FaWallet className="text-3xl text-green-600" />
+          }
+        ])
+      }catch(err){
+        console.error("Error fetching dashboard stats", err);
+      }
+    }
+    fetchDashboardstats()
+  },[])
   return (
     <section className="px-4 md:px-8 py-10 md:py-20">
       <h2 className="text-2xl font-bold mb-4">👋 Welcome, Farmer!</h2>
