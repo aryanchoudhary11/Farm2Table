@@ -1,35 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
+import axios from "axios";
 
-const sampleProducts = [
-  {
-    id: 1,
-    name: "Fresh Tomatoes",
-    image:
-      "https://theworldonaplatter.com/wp-content/uploads/2020/08/tomato-basket-912.jpg",
-    quantity: 50,
-    price: 20,
-    lastUpdated: "2025-08-01",
-  },
-  {
-    id: 2,
-    name: "Organic Milk",
-    image:
-      "https://thumbs.dreamstime.com/b/fresh-organic-milk-nature-background-49456608.jpg",
-    quantity: 5,
-    price: 40,
-    lastUpdated: "2025-08-03",
-  },
-  {
-    id: 3,
-    name: "Apples",
-    image:
-      "https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?auto=format&fit=crop&w=100&q=80",
-    quantity: 0,
-    price: 25,
-    lastUpdated: "2025-08-02",
-  },
-];
 const getStock = (qty) => {
   if (qty === 0) return "Out of Stock";
   if (qty < 5) return "Low Stock";
@@ -42,7 +14,83 @@ const getStockColor = (qty) => {
 };
 
 const MyProducts = () => {
-  const [products, myProducts] = useState(sampleProducts);
+  const [products, setProducts] = useState([]);
+  const [editProduct, setEditProduct] = useState(null);
+  const [formData, setFormData] = useState({
+    name: "",
+    quantity: "",
+    price: "",
+    image: "",
+  });
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const { data } = await axios.get(
+        "http://localhost:5000/api/farmer/my-products",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      // ensure it's always an array
+      setProducts(Array.isArray(data) ? data : data.products || []);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      setProducts([]);
+    }
+  };
+
+  const handleEditClick = (product) => {
+    setEditProduct(product);
+    setFormData({
+      name: product.name,
+      quantity: product.quantity,
+      price: product.price,
+      image: product.image,
+    });
+  };
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSaveEdit = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.put(
+        `http://localhost:5000/api/farmer/my-products/${editProduct.id}`,
+        formData,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setEditProduct(null);
+      fetchProducts();
+    } catch (error) {
+      console.error("Error updating product:", error);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this product?"))
+      return;
+
+    try {
+      const token = localStorage.getItem("token");
+      await axios.delete(`/farmer/my-products/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setProducts(products.filter((p) => p._id !== id));
+    } catch (error) {
+      console.error("Error deleting product:", error);
+    }
+  };
+
   return (
     <div>
       <h2 className="text-xl font-bold mb-4 mt-15 text-green-600">
@@ -59,6 +107,7 @@ const MyProducts = () => {
           <option>Stock</option>
         </select>
       </div>
+
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white shadow rounded-lg">
           <thead className="bg-green-100 text-left text-sm text-gray-600">
@@ -75,12 +124,12 @@ const MyProducts = () => {
           <tbody className="text-sm text-gray-700">
             {products.map((product) => (
               <tr
-                key={product.id}
+                key={product._id} // changed from id to _id
                 className="border-t hover:bg-gray-50 transition-all"
               >
                 <td className="p-3">
                   <img
-                    src={product.image}
+                    src={`http://localhost:5000${product.image}`}
                     alt={product.name}
                     className="h-12 object-cover rounded"
                   />
@@ -99,10 +148,16 @@ const MyProducts = () => {
                 </td>
                 <td className="p-3">{product.lastUpdated}</td>
                 <td className="p-3 flex gap-2">
-                  <button className="text-blue-600 hover:text-blue-800 cursor-pointer">
+                  <button
+                    className="text-blue-600 hover:text-blue-800 cursor-pointer"
+                    onClick={() => handleEditClick(product)}
+                  >
                     <FiEdit />
                   </button>
-                  <button className="text-red-600 hover:text-red-800 cursor-pointer">
+                  <button
+                    className="text-red-600 hover:text-red-800 cursor-pointer"
+                    onClick={() => handleDelete(product._id)}
+                  >
                     <FiTrash2 />
                   </button>
                 </td>
@@ -111,7 +166,64 @@ const MyProducts = () => {
           </tbody>
         </table>
       </div>
+
+      {editProduct && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+            <h3 className="text-lg font-bold mb-4 text-green-600">
+              Edit Product
+            </h3>
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="Product Name"
+              className="w-full border p-2 mb-2 rounded"
+            />
+            <input
+              type="number"
+              name="quantity"
+              value={formData.quantity}
+              onChange={handleChange}
+              placeholder="Quantity"
+              className="w-full border p-2 mb-2 rounded"
+            />
+            <input
+              type="number"
+              name="price"
+              value={formData.price}
+              onChange={handleChange}
+              placeholder="Price"
+              className="w-full border p-2 mb-2 rounded"
+            />
+            <input
+              type="text"
+              name="image"
+              value={formData.image}
+              onChange={handleChange}
+              placeholder="Image URL"
+              className="w-full border p-2 mb-4 rounded"
+            />
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setEditProduct(null)}
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveEdit}
+                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
+
 export default MyProducts;

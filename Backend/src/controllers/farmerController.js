@@ -5,7 +5,6 @@ export const addProduct = async (req, res) => {
   try {
     const { name, price, quantity, category, harvestDate } = req.body;
 
-    // Validation
     if (!name || !price || !quantity || !category || !harvestDate) {
       return res.status(400).json({ message: "All fields are required" });
     }
@@ -13,18 +12,23 @@ export const addProduct = async (req, res) => {
       return res.status(400).json({ message: "Image is required" });
     }
 
-    // Create product
-    const product = await Product.create({
+    const savedProduct = await Product.create({
       name,
       price,
       quantity,
       category,
       harvestDate,
-      image: `/uploads/products/${req.file.filename}`, // Store path in DB
+      image: req.file.filename,
       farmer: req.user._id,
     });
 
-    res.status(201).json(product);
+    res.status(201).json({
+      success: true,
+      product: {
+        ...savedProduct.toObject(),
+        imageUrl: `/uploads/products/${req.file.filename}`,
+      },
+    });
   } catch (err) {
     console.error("Error adding product:", err);
     res.status(500).json({ message: err.message });
@@ -33,8 +37,18 @@ export const addProduct = async (req, res) => {
 
 export const getProduct = async (req, res) => {
   try {
-    const products = await Product.find({ farmer: req.user._id });
-    res.status(200).json(products);
+    const products = await Product.find({ farmer: req.user._id }).sort({
+      updatedAt: -1,
+    });
+    const formatted = products.map((p) => ({
+      id: p._id,
+      name: p.name,
+      image: p.image,
+      quantity: p.quantity,
+      price: p.price,
+      lastUpdated: p.updatedAt.toISOString().split("T")[0],
+    }));
+    res.status(200).json(formatted);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -79,6 +93,43 @@ export const getFarmerOrders = async (req, res) => {
     res.status(200).json(formattedOrders);
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+export const updateMyProduct = async (req, res) => {
+  try {
+    const product = await Product.findOne({
+      _id: req.params.id,
+      farmer: req.user._id,
+    });
+    if (!product) {
+      res.status(404).json({ message: "Product not found or not authorized" });
+    }
+    const { name, quantity, price, image } = req.body;
+    if (name) product.name = name;
+    if (quantity !== undefined) product.quantity = quantity;
+    if (price !== undefined) product.price = price;
+    if (image) product.image = image;
+    await product.save();
+    res.status(200).json({ message: "Product updated successfully" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+export const deleteProduct = async (req, res) => {
+  try {
+    const product = await Product.findOne({
+      _id: req.params.id,
+      farmer: req.user._id,
+    });
+    if (!product) {
+      res.status(404).json({ message: "Product not found or not authorized" });
+    }
+    await product.deleteOne();
+    res.status(200).json({ message: "Product deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
 
