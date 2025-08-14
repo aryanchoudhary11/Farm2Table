@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
 import axios from "axios";
+import toast, { Toaster } from "react-hot-toast";
 
 const getStock = (qty) => {
   if (qty === 0) return "Out of Stock";
@@ -37,7 +38,6 @@ const MyProducts = () => {
         }
       );
 
-      // ensure it's always an array
       setProducts(Array.isArray(data) ? data : data.products || []);
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -76,23 +76,31 @@ const MyProducts = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this product?"))
-      return;
-
+  const handleDelete = async (productId) => {
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`/farmer/my-products/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setProducts(products.filter((p) => p._id !== id));
+      await axios.delete(
+        `http://localhost:5000/api/farmer/my-products/${productId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      setProducts((prevProducts) =>
+        prevProducts.filter((product) => product.id !== productId)
+      );
+
+      toast.success("Product deleted successfully!");
     } catch (error) {
       console.error("Error deleting product:", error);
+      toast.error("Failed to delete product");
     }
   };
 
   return (
     <div>
+      <Toaster position="top-right" />
+
       <h2 className="text-xl font-bold mb-4 mt-15 text-green-600">
         My Products
       </h2>
@@ -124,12 +132,12 @@ const MyProducts = () => {
           <tbody className="text-sm text-gray-700">
             {products.map((product) => (
               <tr
-                key={product._id} // changed from id to _id
+                key={product.id}
                 className="border-t hover:bg-gray-50 transition-all"
               >
                 <td className="p-3">
                   <img
-                    src={`http://localhost:5000${product.image}`}
+                    src={`http://localhost:5000/uploads/products/${product.image}`}
                     alt={product.name}
                     className="h-12 object-cover rounded"
                   />
@@ -156,7 +164,7 @@ const MyProducts = () => {
                   </button>
                   <button
                     className="text-red-600 hover:text-red-800 cursor-pointer"
-                    onClick={() => handleDelete(product._id)}
+                    onClick={() => handleDelete(product.id)}
                   >
                     <FiTrash2 />
                   </button>
