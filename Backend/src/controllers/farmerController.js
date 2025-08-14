@@ -1,24 +1,32 @@
 import Product from "../models/Product.js";
 import Order from "../models/Order.js";
 
-export const addproduct = async (req, res) => {
+export const addProduct = async (req, res) => {
   try {
-    const { name, price, quantity, category, harvestDate, image } = req.body;
+    const { name, price, quantity, category, harvestDate } = req.body;
 
-    if (!name || !price || !quantity || !category || !harvestDate || !image) {
-      res.status(400).json({ message: "All fields are required" });
+    // Validation
+    if (!name || !price || !quantity || !category || !harvestDate) {
+      return res.status(400).json({ message: "All fields are required" });
     }
+    if (!req.file) {
+      return res.status(400).json({ message: "Image is required" });
+    }
+
+    // Create product
     const product = await Product.create({
       name,
       price,
       quantity,
       category,
       harvestDate,
-      image,
+      image: `/uploads/products/${req.file.filename}`, // Store path in DB
       farmer: req.user._id,
     });
+
     res.status(201).json(product);
   } catch (err) {
+    console.error("Error adding product:", err);
     res.status(500).json({ message: err.message });
   }
 };

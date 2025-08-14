@@ -23,20 +23,27 @@ const AddProduct = () => {
       setProduct({ ...product, [name]: value });
     }
   };
-
-  const handleSubmit = (e) => {
+  const token = localStorage.getItem("token");
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (
-      !product.name ||
-      !product.quantity ||
-      !product.price ||
-      !product.harvestDate ||
-      !product.category ||
-      !product.image
-    ) {
-      setMessage("❌ Please fill all fields");
-      return;
-    }
+
+    const formData = new FormData();
+    formData.append("name", product.name);
+    formData.append("price", product.price);
+    formData.append("quantity", product.quantity);
+    formData.append("category", product.category);
+    formData.append("harvestDate", product.harvestDate);
+    formData.append("image", product.image);
+
+    const res = await fetch("http://localhost:5000/api/farmer/add-product", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const data = await res.json();
     setMessage("✅ Product added successfully!");
     setProduct({
       name: "",
