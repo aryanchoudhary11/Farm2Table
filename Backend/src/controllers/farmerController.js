@@ -102,17 +102,27 @@ export const updateMyProduct = async (req, res) => {
       _id: req.params.id,
       farmer: req.user._id,
     });
+
     if (!product) {
-      res.status(404).json({ message: "Product not found or not authorized" });
+      return res
+        .status(404)
+        .json({ message: "Product not found or not authorized" });
     }
-    const { name, quantity, price, image } = req.body;
+
+    const { name, quantity, price } = req.body;
+
     if (name) product.name = name;
     if (quantity !== undefined) product.quantity = quantity;
     if (price !== undefined) product.price = price;
-    if (image) product.image = image;
+
+    if (req.file) {
+      product.image = req.file.filename;
+    }
+
     await product.save();
-    res.status(200).json({ message: "Product updated successfully" });
+    res.status(200).json({ message: "Product updated successfully", product });
   } catch (err) {
+    console.error("Error updating product:", err);
     res.status(500).json({ message: err.message });
   }
 };

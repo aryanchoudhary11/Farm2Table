@@ -21,7 +21,13 @@ router.post(
   addProduct
 );
 router.get("/my-products", protect, restrictTo("farmer"), getProduct);
-router.put("/my-products/:id", protect, restrictTo("farmer"), updateMyProduct);
+router.put(
+  "/my-products/:id",
+  protect,
+  restrictTo("farmer"),
+  upload.single("image"),
+  updateMyProduct
+);
 router.delete("/my-products/:id", protect, restrictTo("farmer"), deleteProduct);
 router.get("/track-orders", protect, restrictTo("farmer"), getFarmerOrders);
 router.put(

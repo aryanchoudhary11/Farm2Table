@@ -62,17 +62,33 @@ const MyProducts = () => {
   const handleSaveEdit = async () => {
     try {
       const token = localStorage.getItem("token");
+
+      const formDataToSend = new FormData();
+      formDataToSend.append("name", formData.name);
+      formDataToSend.append("quantity", formData.quantity);
+      formDataToSend.append("price", formData.price);
+
+      if (formData.image instanceof File) {
+        formDataToSend.append("image", formData.image);
+      }
+
       await axios.put(
         `http://localhost:5000/api/farmer/my-products/${editProduct.id}`,
-        formData,
+        formDataToSend,
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
         }
       );
+
       setEditProduct(null);
       fetchProducts();
+      toast.success("Product updated successfully!");
     } catch (error) {
       console.error("Error updating product:", error);
+      toast.error("Failed to update product");
     }
   };
 
@@ -205,14 +221,15 @@ const MyProducts = () => {
               placeholder="Price"
               className="w-full border p-2 mb-2 rounded"
             />
+
             <input
-              type="text"
-              name="image"
-              value={formData.image}
-              onChange={handleChange}
-              placeholder="Image URL"
-              className="w-full border p-2 mb-4 rounded"
+              type="file"
+              accept="image/*"
+              onChange={(e) =>
+                setFormData({ ...formData, image: e.target.files[0] })
+              }
             />
+
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setEditProduct(null)}
