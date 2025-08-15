@@ -39,6 +39,25 @@ const ProductDiscovery = () => {
   useEffect(() => {
     fetchProducts();
   }, [searchTerm, selectedCategory]);
+
+  const handleAddToCart = async (productId, quantity) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Please login first to add items to your cart.");
+        return;
+      }
+      const data = await axios.post(
+        "http://localhost:5000/api/products/cart",
+        { productId, quantity },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      alert("✅ Product added to cart!");
+    } catch (err) {
+      console.error("Error adding to cart:", err);
+      alert("❌ Failed to add to cart.");
+    }
+  };
   return (
     <div className="p-4 md:p-8 mt-15">
       <h1 className="text-2xl font-semibold mb-4 text-green-700">
@@ -105,8 +124,17 @@ const ProductDiscovery = () => {
                   min="1"
                   defaultValue={1}
                   className="w-16 p-1 border rounded"
+                  id={`qty-${product._id}`}
                 />
-                <button className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 cursor-pointer">
+                <button
+                  onClick={() => {
+                    const qty = parseInt(
+                      document.getElementById(`qty-${product._id}`).value
+                    );
+                    handleAddToCart(product._id, qty);
+                  }}
+                  className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 cursor-pointer"
+                >
                   🛒 Add to Cart
                 </button>
               </div>
