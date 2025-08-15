@@ -1,41 +1,11 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
 
-const products = [
-  {
-    id: 1,
-    name: "Tomatoes",
-    category: "Vegetables",
-    price: 30,
-    stock: 20,
-    farmer: "Green Farm",
-    image:
-      "https://theworldonaplatter.com/wp-content/uploads/2020/08/tomato-basket-912.jpg",
-  },
-  {
-    id: 2,
-    name: "Bananas",
-    category: "Fruits",
-    price: 50,
-    stock: 0,
-    farmer: "Tropical Growers",
-    image:
-      "https://nutritionsource.hsph.harvard.edu/wp-content/uploads/2018/08/bananas-1354785_1920.jpg",
-  },
-  {
-    id: 3,
-    name: "Milk",
-    category: "Dairy",
-    price: 60,
-    stock: 10,
-    farmer: "Happy Cow Dairy",
-    image:
-      "https://thumbs.dreamstime.com/b/fresh-organic-milk-nature-background-49456608.jpg",
-  },
-];
 const ProductDiscovery = () => {
   const [userLocation, setUserLocation] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState(products);
 
   useEffect(() => {
@@ -50,17 +20,24 @@ const ProductDiscovery = () => {
       }
     );
   }, []);
+
+  const fetchProducts = async (req, res) => {
+    try {
+      const params = {};
+      if (searchTerm) params.search = searchTerm;
+      if (selectedCategory) params.category = selectedCategory;
+      const { data } = await axios.get("http://localhost:5000/api/products", {
+        params,
+      });
+      setProducts(Array.isArray(data) ? data : data.products || []);
+    } catch (err) {
+      console.error("Error fetching products:", err);
+      setProducts([]);
+    }
+  };
+
   useEffect(() => {
-    let filtered = products;
-    if (searchTerm) {
-      filtered = filtered.filter((p) =>
-        p.name.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-    if (selectedCategory) {
-      filtered = filtered.filter((p) => p.category === selectedCategory);
-    }
-    setFilteredProducts(filtered);
+    fetchProducts();
   }, [searchTerm, selectedCategory]);
   return (
     <div className="p-4 md:p-8 mt-15">
@@ -95,10 +72,13 @@ const ProductDiscovery = () => {
         </select>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-        {filteredProducts.map((product) => (
-          <div className=" bg-white shadow-md rounded-lg overflow-hidden">
+        {products.map((product) => (
+          <div
+            key={product._id}
+            className=" bg-white shadow-md rounded-lg overflow-hidden"
+          >
             <img
-              src={product.image}
+              src={`http://localhost:5000/uploads/products/${product.image}`}
               alt={product.name}
               className="w-full h-40 object-cover"
             />

@@ -5,6 +5,7 @@ import morgan from "morgan";
 import connectDB from "./src/config/db.js";
 import authRoutes from "./src/routes/authRoutes.js";
 import farmerRoutes from "./src/routes/farmerRoutes.js";
+import customerRoutes from "./src/routes/customerRoutes.js";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -27,6 +28,7 @@ app.use("/uploads", express.static("uploads"));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/farmer", farmerRoutes);
+app.use("/api/products", customerRoutes);
 
 // Basic test route
 app.get("/", (req, res) => {

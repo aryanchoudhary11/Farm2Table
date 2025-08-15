@@ -20,7 +20,7 @@ const HeroBanner = () => {
           </p>
           <div className="gap-3 flex justify-center">
             <Link
-              to="/customer"
+              to="/products"
               className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg cursor-pointer transition-all duration-300 ease-in-out"
             >
               Shop Now

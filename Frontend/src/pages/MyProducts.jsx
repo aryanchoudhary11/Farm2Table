@@ -63,10 +63,10 @@ const MyProducts = () => {
         sortedProducts.sort((a, b) => b.price - a.price);
         break;
       case "Stock":
-        sortedProducts.sort((a, b) => b.quantity - a.quantity); // high stock first
+        sortedProducts.sort((a, b) => b.quantity - a.quantity);
         break;
       default:
-        fetchProducts(); // reset to original order
+        fetchProducts();
         return;
     }
 
