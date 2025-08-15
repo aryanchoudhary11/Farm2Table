@@ -17,6 +17,7 @@ const getStockColor = (qty) => {
 const MyProducts = () => {
   const [products, setProducts] = useState([]);
   const [editProduct, setEditProduct] = useState(null);
+  const [sortOption, setSortOption] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     quantity: "",
@@ -43,6 +44,33 @@ const MyProducts = () => {
       console.error("Error fetching products:", error);
       setProducts([]);
     }
+  };
+
+  const handleSortChange = (e) => {
+    const option = e.target.value;
+    setSortOption(option);
+
+    let sortedProducts = [...products];
+
+    switch (option) {
+      case "Name":
+        sortedProducts.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case "Price (Low to High)":
+        sortedProducts.sort((a, b) => a.price - b.price);
+        break;
+      case "Price (High to Low)":
+        sortedProducts.sort((a, b) => b.price - a.price);
+        break;
+      case "Stock":
+        sortedProducts.sort((a, b) => b.quantity - a.quantity); // high stock first
+        break;
+      default:
+        fetchProducts(); // reset to original order
+        return;
+    }
+
+    setProducts(sortedProducts);
   };
 
   const handleEditClick = (product) => {
@@ -123,12 +151,16 @@ const MyProducts = () => {
 
       <div className="flex justify-between items-center mb-4">
         <p className="text-gray-500">{products.length} products listed</p>
-        <select className="border p-2 rounded text-sm px-2">
-          <option>Sort by</option>
-          <option>Name</option>
-          <option>Price (Low to High)</option>
-          <option>Price (High to Low)</option>
-          <option>Stock</option>
+        <select
+          className="border p-2 rounded text-sm px-2"
+          value={sortOption}
+          onChange={handleSortChange}
+        >
+          <option value="">Sort by</option>
+          <option value="Name">Name</option>
+          <option value="Price (Low to High)">Price (Low to High)</option>
+          <option value="Price (High to Low)">Price (High to Low)</option>
+          <option value="Stock">Stock</option>
         </select>
       </div>
 
