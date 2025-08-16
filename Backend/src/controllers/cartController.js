@@ -42,3 +42,31 @@ export const getCart = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+export const updateCartQuantity = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { quantity } = req.body;
+    const cartItem = await Cart.findById(id);
+    if (!cartItem) return res.status(404).json({ message: "Item not found" });
+
+    cartItem.quantity = quantity;
+    await cartItem.save();
+    res.status(200).json(cartItem);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// // Remove item
+// export const removeFromCart = async (req, res) => {
+//   try {
+//     const { id } = req.params; // cart item ID
+//     await Cart.findByIdAndDelete(id);
+//     res.status(200).json({ message: "Item removed from cart" });
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ message: "Server error" });
+//   }
+// };
