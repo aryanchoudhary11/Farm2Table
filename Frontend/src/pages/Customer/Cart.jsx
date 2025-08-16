@@ -61,7 +61,7 @@ const Cart = () => {
     }
   };
   const subTotal = items.reduce(
-    (acc, item) => acc + item.price * item.quantity,
+    (acc, item) => acc + item.product.price * item.quantity,
     0
   );
   const deliveryFee = subTotal > 0 && subTotal < 99 ? 20 : 0;
