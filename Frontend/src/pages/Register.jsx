@@ -1,7 +1,46 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
 const Register = () => {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [role, setRole] = useState("customer");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
+
+    if (password != confirmPassword) {
+      setError("Password did not matched!");
+      return;
+    }
+
+    try {
+      const { data } = await axios.post(
+        "http://localhost:5000/api/auth/register",
+        {
+          name,
+          email,
+          password,
+          role,
+        }
+      );
+      setSuccess("Account created successfully! You can now login.");
+      setName("");
+      setEmail("");
+      setPassword("");
+      setConfirmPassword("");
+      setRole("customer");
+    } catch (err) {
+      console.error(err);
+      setError(err.response?.data?.message || "Something went wrong");
+    }
+  };
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-yellow-100 to-green-100 px-4 mt-7">
       <div className="bg-white p-8 shadow-lg rounded-2xl w-full max-w-md">
@@ -11,7 +50,10 @@ const Register = () => {
         <p className="text-sm text-gray-500 text-center mb-6">
           Join us to get fresh local produce!
         </p>
-        <form className="space-y-4">
+        <form className="space-y-4" onSubmit={handleSubmit}>
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+          {success && <p className="text-green-600 text-sm">{success}</p>}
+
           <div>
             <label className="block text-sm text-gray-700 mb-1 font-medium">
               Full Name
@@ -19,6 +61,8 @@ const Register = () => {
             <input
               type="text"
               placeholder="Enter your name..."
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               required
               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
             />
@@ -30,6 +74,8 @@ const Register = () => {
             <input
               type="email"
               placeholder="Enter your email..."
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
             />
@@ -41,6 +87,8 @@ const Register = () => {
             <input
               type="password"
               placeholder="Enter your password..."
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required
               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
             />
@@ -52,6 +100,8 @@ const Register = () => {
             <input
               type="password"
               placeholder="Confirm your password.."
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               required
               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
             />
