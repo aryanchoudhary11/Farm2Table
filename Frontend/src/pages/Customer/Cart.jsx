@@ -23,12 +23,42 @@ const Cart = () => {
       setLoading(false);
     }
   };
-  const updateQuantity = (id, quantity) => {
-    setItems((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, quantity: quantity } : item
-      )
-    );
+  const updateQuantity = async (id, quantity) => {
+    try {
+      const token = localStorage.getItem("token");
+      const { data } = await axios.put(
+        `http://localhost:5000/api/products/cart/${id}`,
+        { quantity },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setItems((prev) =>
+        prev.map((item) =>
+          item._id === id ? { ...item, quantity: data.quantity } : item
+        )
+      );
+    } catch (err) {
+      console.error("Error updating quantity:", err);
+    }
+  };
+
+  const removeItem = async (id) => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.delete(
+        `http://localhost:5000/api/products/cart/${id}`,
+
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setItems((prev) => prev.filter((item) => item._id != id));
+    } catch (err) {
+      console.error("Error removing item:", err);
+    }
   };
   const subTotal = items.reduce(
     (acc, item) => acc + item.price * item.quantity,
@@ -67,9 +97,9 @@ const Cart = () => {
                     <input
                       type="number"
                       min="1"
-                      value={item.quantity}
+                      value={item.quantity ?? 1}
                       onChange={(e) =>
-                        updateQuantity(item.id, parseInt(e.target.value))
+                        updateQuantity(item._id, parseInt(e.target.value) || 1)
                       }
                       className="w-16 p-1 border rounded-lg text-center"
                     />
@@ -79,7 +109,7 @@ const Cart = () => {
                   </div>
                 </div>
                 <button
-                  onClick={() => removeItem(item.id)}
+                  onClick={() => removeItem(item._id)}
                   title="Remove Item"
                   className="text-red-500 hover:text-700 text-lg"
                 >

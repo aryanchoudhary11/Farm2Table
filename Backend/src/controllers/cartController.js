@@ -59,14 +59,13 @@ export const updateCartQuantity = async (req, res) => {
   }
 };
 
-// // Remove item
-// export const removeFromCart = async (req, res) => {
-//   try {
-//     const { id } = req.params; // cart item ID
-//     await Cart.findByIdAndDelete(id);
-//     res.status(200).json({ message: "Item removed from cart" });
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).json({ message: "Server error" });
-//   }
-// };
+export const removeFromCart = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await Cart.findByIdAndDelete(id);
+    res.status(200).json({ message: "Item removed from cart" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
