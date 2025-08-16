@@ -6,13 +6,25 @@ import {
   removeFromCart,
   updateCartQuantity,
 } from "../controllers/cartController.js";
-import { protect } from "../middleware/authMiddleware.js";
+import { protect, restrictTo } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.get("/", getProducts);
-router.post("/cart", protect, addToCart);
-router.get("/cart", protect, getCart);
-router.put("/cart/:id", protect, updateCartQuantity);
-router.delete("/cart/:id", protect, removeFromCart);
+router.get("/", protect, restrictTo("customer"), getProducts);
+router.post("/cart", protect, restrictTo("customer"), protect, addToCart);
+router.get("/cart", protect, restrictTo("customer"), protect, getCart);
+router.put(
+  "/cart/:id",
+  protect,
+  restrictTo("customer"),
+  protect,
+  updateCartQuantity
+);
+router.delete(
+  "/cart/:id",
+  protect,
+  restrictTo("customer"),
+  protect,
+  removeFromCart
+);
 export default router;

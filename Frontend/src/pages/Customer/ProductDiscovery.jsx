@@ -6,7 +6,6 @@ const ProductDiscovery = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [products, setProducts] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState(products);
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
@@ -21,13 +20,17 @@ const ProductDiscovery = () => {
     );
   }, []);
 
-  const fetchProducts = async (req, res) => {
+  const fetchProducts = async () => {
     try {
+      const token = localStorage.getItem("token");
       const params = {};
       if (searchTerm) params.search = searchTerm;
       if (selectedCategory) params.category = selectedCategory;
       const { data } = await axios.get("http://localhost:5000/api/products", {
         params,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
       setProducts(Array.isArray(data) ? data : data.products || []);
     } catch (err) {

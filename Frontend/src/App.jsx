@@ -20,6 +20,7 @@ import Cart from "./pages/Customer/Cart";
 import Checkout from "./pages/Customer/Checkout";
 import MyOrders from "./pages/Customer/myOrders";
 import MyOrderTrack from "./pages/Customer/MyOrderTrack";
+import RoleProtectedLayout from "./components/ProtectedRoute";
 
 function App() {
   return (
@@ -34,14 +35,29 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Register />} />
         <Route path="/farmer-onboarding" element={<FarmerOnboarding />} />
+        <Route path="/404" element={<NotFound />} />
         <Route path="*" element={<NotFound />} />
-        <Route path="/farmer" element={<FarmerLayout />}>
+        <Route
+          path="/farmer/*"
+          element={
+            <RoleProtectedLayout allowedRoles={["farmer"]}>
+              <FarmerLayout />
+            </RoleProtectedLayout>
+          }
+        >
           <Route index element={<FarmerDashboardHome />} />
           <Route path="add-product" element={<AddProduct />} />
           <Route path="my-products" element={<MyProducts />} />
           <Route path="orders" element={<TrackOrders />} />
         </Route>
-        <Route path="/products" element={<CustomerLayout />}>
+        <Route
+          path="/products/*"
+          element={
+            <RoleProtectedLayout allowedRoles={["customer"]}>
+              <CustomerLayout />
+            </RoleProtectedLayout>
+          }
+        >
           <Route index element={<ProductDiscovery />} />
           <Route path="cart" element={<Cart />} />
           <Route path="checkout" element={<Checkout />} />

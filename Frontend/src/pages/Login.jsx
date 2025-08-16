@@ -3,31 +3,35 @@ import { Link, useNavigate } from "react-router-dom";
 import API from "../api.js";
 const Login = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({email: "", password: ""})
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("")
-  const handleChange = (e)=>{
-    setFormData(prev=>({...prev, [e.target.name]: e.target.value}))
-  }
-  const handleSubmit = async (e)=>{
-    e.preventDefault()
-    setLoading(true)
-    setError("")
-    try{
-      const {data} = await API.post("/login",formData)
-      localStorage.setItem("token", data.token)
-      localStorage.setItem("role", data.role)
-      if(data.role === "farmer"){
-        navigate("/farmer")
-      } else{
-        navigate("/products")
+  const [error, setError] = useState("");
+  const handleChange = (e) => {
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    try {
+      const { data } = await API.post("/login", formData);
+
+      localStorage.setItem("user", JSON.stringify(data));
+      localStorage.setItem("token", data.token);
+
+      if (data.role === "farmer") {
+        navigate("/farmer");
+      } else {
+        navigate("/products");
       }
-    } catch(err){
+    } catch (err) {
       setError(err.response?.data?.message || "Login failed");
-    } finally{
-      setLoading(false)
+    } finally {
+      setLoading(false);
     }
-  }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-100 to-blue-100 px-4">
       <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
@@ -35,9 +39,7 @@ const Login = () => {
           Login
         </h2>
         <p className="text-sm text-center text-gray-500 mb-6">Welcome Back!</p>
-        {error && (
-          <p className="text-red-600 text-center mb-4">{error}</p>
-        )}
+        {error && <p className="text-red-600 text-center mb-4">{error}</p>}
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
             <label className="block text-smfont-medium text-gray-700">
