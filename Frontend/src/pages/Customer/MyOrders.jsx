@@ -1,28 +1,7 @@
+import axios from "axios";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
-const orders = [
-  {
-    id: "ORD12345",
-    items: ["Fresh Tomatoes", "Organic Bananas"],
-    date: "2025-08-08",
-    status: "Delivered",
-    total: 110,
-  },
-  {
-    id: "ORD12346",
-    items: ["Farm Fresh Carrots"],
-    date: "2025-08-07",
-    status: "Packed",
-    total: 60,
-  },
-  {
-    id: "ORD12347",
-    items: ["Sweet Corn", "Spinach Bunch"],
-    date: "2025-08-06",
-    status: "Pending",
-    total: 90,
-  },
-];
+import { useEffect, useState } from "react";
+import { data, useNavigate } from "react-router-dom";
 
 const statusColors = {
   Pending: "bg-yellow-100 text-yellow-700 border-yellow-300",
@@ -31,13 +10,38 @@ const statusColors = {
 };
 const MyOrders = () => {
   const navigate = useNavigate();
+
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const fetchOrders = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const { data } = await axios.get(
+        "http://localhost:5000/api/products/my-orders",
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setOrders(data || []);
+    } catch (err) {
+      console.error("Error fetching orders:", err);
+      setOrders([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+  if (loading) return <p className="p-4">Loading orders...</p>;
   return (
     <div className="p-4 md:p-8 mt-15 bg-green-50 min-h-screen">
       <h1 className="text-2xl font-bold text-green-800 mb-6">My Orders</h1>
       <div>
+        {orders.length === 0 && <p>No orders found.</p>}
         {orders.map((order, index) => (
           <motion.div
-            key={order.id}
+            key={order._id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
@@ -45,11 +49,13 @@ const MyOrders = () => {
           >
             <div className="flex flex-col md:flex-row md:items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Order ID: {order.id}</p>
+                <p className="text-sm text-gray-500">Order ID: {order._id}</p>
                 <p className="font-semibold text-green-800">
-                  {order.items.join(", ")}
+                  {order.items.map((i) => i.name).join(", ")}
                 </p>
-                <p className="text-sm text-gray-400">📅 {order.date}</p>
+                <p className="text-sm text-gray-400">
+                  📅 {new Date(order.createdAt).toLocaleDateString()}
+                </p>
               </div>
               <div className="flex flex-col md:items-end mt-3 md:mt-0">
                 <span
@@ -59,12 +65,15 @@ const MyOrders = () => {
                 >
                   {order.status}
                 </span>
-                <p className="font-bold text-green-700 mt-2"> ₹{order.total}</p>
+                <p className="font-bold text-green-700 mt-2">
+                  {" "}
+                  ₹{order.totalAmount}
+                </p>
               </div>
             </div>
             <div className="mt-4 text-right">
               <button
-                onClick={() => navigate("/customer/track-order")}
+                onClick={() => navigate(`/customer/track-order/${order._id}`)}
                 className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 cursor-pointer transition"
               >
                 Track Order
