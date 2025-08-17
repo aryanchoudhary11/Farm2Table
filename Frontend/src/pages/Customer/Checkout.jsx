@@ -49,17 +49,20 @@ const Checkout = () => {
     setError("");
     try {
       const user = JSON.parse(localStorage.getItem("user"));
+      const token = localStorage.getItem("token");
       const payload = {
         _id: user._id,
         items: cartItems.map((i) => ({
-          product: i._id,
+          product: i.product._id,
           quantity: i.quantity,
         })),
         address,
       };
       const { data } = await axios.post(
         "http://localhost:5000/api/products/checkout",
-        payload
+
+        payload,
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       if (paymentMethod === "wallet") {
