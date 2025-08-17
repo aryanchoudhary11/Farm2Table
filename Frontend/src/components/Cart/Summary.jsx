@@ -1,5 +1,7 @@
+import { useNavigate } from "react-router-dom";
 const Summary = ({ subTotal, deliveryFee }) => {
   const total = subTotal + deliveryFee;
+  const navigate = useNavigate();
   return (
     <div className="bg-white rounded-lg p-6 shadow border border-green-100">
       <h2 className="text-xl font-semibold mb-4 text-green-800">
@@ -18,7 +20,10 @@ const Summary = ({ subTotal, deliveryFee }) => {
         <span>Total</span>
         <span>₹{total}</span>
       </div>
-      <button className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition duration-200 cursor-pointer">
+      <button
+        onClick={() => navigate("/products/checkout")}
+        className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition duration-200 cursor-pointer"
+      >
         Proceed to CheckOut
       </button>
     </div>
