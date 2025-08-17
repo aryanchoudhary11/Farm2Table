@@ -62,7 +62,7 @@ function App() {
           <Route path="cart" element={<Cart />} />
           <Route path="checkout" element={<Checkout />} />
           <Route path="my-orders" element={<MyOrders />} />
-          <Route path="track-orders" element={<MyOrderTrack />} />
+          <Route path="track-order/:id" element={<MyOrderTrack />} />
         </Route>
       </Routes>
       <Footer />

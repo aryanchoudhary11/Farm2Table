@@ -73,7 +73,7 @@ const MyOrders = () => {
             </div>
             <div className="mt-4 text-right">
               <button
-                onClick={() => navigate(`/customer/track-order/${order._id}`)}
+                onClick={() => navigate(`/products/track-order/${order._id}`)}
                 className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 cursor-pointer transition"
               >
                 Track Order

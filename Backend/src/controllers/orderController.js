@@ -70,3 +70,21 @@ export const getMyOrders = async (req, res) => {
     res.status(500).json({ message: "Error fetching orders" });
   }
 };
+
+export const getOrderById = async (req, res) => {
+  try {
+    const orderId = req.params.id;
+    const userId = req.user._id;
+    const order = await Order.findOne({
+      _id: orderId,
+      customer: userId,
+    }).populate("items.product", "name price"); //why ?
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+    res.status(200).json(order);
+  } catch (err) {
+    console.error("Error fetching order:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};

@@ -1,5 +1,8 @@
+import axios from "axios";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 import { FaShoppingCart, FaBox, FaTruck, FaCheck } from "react-icons/fa";
+import { useParams } from "react-router-dom";
 
 const steps = [
   { label: "Pending", icon: <FaShoppingCart /> },
@@ -8,9 +11,39 @@ const steps = [
   { label: "Delivered", icon: <FaCheck /> },
 ];
 
-const currentStep = 2;
-
 const TrackOrder = () => {
+  const { id } = useParams();
+  const [order, setOrder] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const fetchOrder = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const { data } = await axios.get(
+        `http://localhost:5000/api/products/track-order/${id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setOrder(data);
+    } catch (err) {
+      console.error("Error fetching order:", err);
+      setOrder(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    fetchOrder();
+  }, [id]);
+  if (loading) return <p className="p-8 text-center">Loading order...</p>;
+  if (!order) return <p className="p-8 text-center">Order not found.</p>;
+
+  const statusMap = {
+    Pending: 0,
+    Packed: 1,
+    "Out for Delivery": 2,
+    Delivered: 3,
+  };
+  const currentStep = statusMap[order.status] || 0;
   return (
     <div className="min-h-screen bg-green-50 p-8 mt-10">
       <h1 className="text-2xl font-bold text-green-800 mb-12 text-center">
