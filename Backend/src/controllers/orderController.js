@@ -49,61 +49,11 @@ export const createPaymentIntent = async (req, res) => {
   }
 };
 
-// export const confirmOrder = async (req, res) => {
-//   try {
-//     const { items, address,paymentMethod, paymentIntentId } = req.body;
-//     const customerId = req.user._id;
-
-//     const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
-
-//     if (paymentIntent.status !== "succeeded") {
-//       return res.status(400).json({ message: "Payment not completed" });
-//     }
-
-//     let totalAmount = 0;
-//     const orderItems = [];
-//     for (const item of items) {
-//       const product = await Product.findById(item.product);
-//       if (!product)
-//         return res
-//           .status(404)
-//           .json({ message: `Product not found: ${item.product}` });
-
-//       totalAmount += product.price * item.quantity;
-
-//       orderItems.push({
-//         product: product._id,
-//         name: product.name,
-//         price: product.price,
-//         quantity: item.quantity,
-//       });
-//     }
-
-//     const order = await Order.create({
-//       farmer: orderItems[0].product, // TODO: handle multiple farmers properly
-//       customer: customerId,
-//       address,
-//       items: orderItems,
-//       totalAmount,
-//       paymentIntentId,
-//     });
-
-//     res.status(201).json({
-//       message: "Order confirmed successfully",
-//       order,
-//     });
-//   } catch (err) {
-//     console.error("Error confirming order:", err);
-//     res.status(500).json({ message: "Failed to confirm order" });
-//   }
-// };
-
 export const confirmOrder = async (req, res) => {
   try {
     const { items, address, paymentMethod, paymentIntentId } = req.body;
     const customerId = req.user._id;
 
-    // 🛑 Validate cart
     if (!items || items.length === 0) {
       return res.status(400).json({ message: "No items in order" });
     }
@@ -135,7 +85,6 @@ export const confirmOrder = async (req, res) => {
       });
     }
 
-    // 🟢 STRIPE FLOW
     if (paymentMethod === "stripe") {
       const paymentIntent = await stripe.paymentIntents.retrieve(
         paymentIntentId
@@ -146,7 +95,6 @@ export const confirmOrder = async (req, res) => {
       }
     }
 
-    // 🟢 COD FLOW → skip Stripe, mark as "Pending"
     const order = await Order.create({
       farmer: orderItems[0].product, // TODO: handle multiple farmers properly
       customer: customerId,

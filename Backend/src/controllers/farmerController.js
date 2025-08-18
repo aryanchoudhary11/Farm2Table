@@ -136,7 +136,10 @@ export const getFarmerOrders = async (req, res) => {
         if (filteredItems.length > 0) {
           return {
             _id: order._id,
-            user: order.customer.name,
+            customer: {
+              name: order.customer?.name,
+              email: order.customer?.email,
+            },
             items: filteredItems,
             address: order.address,
             status: order.status,
