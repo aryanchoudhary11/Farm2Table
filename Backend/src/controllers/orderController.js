@@ -8,12 +8,13 @@ const stripe = new Stripe(process.env.STRIPE_KEY_SECRET);
 
 export const createPaymentIntent = async (req, res) => {
   try {
-    const { items, address } = req.body;
+    const { items } = req.body;
     if (!items || items.length === 0) {
       return res.status(400).json({ message: "No items in order" });
     }
 
     let totalAmount = 0;
+
     for (const item of items) {
       const product = await Product.findById(item.product);
       if (!product)
@@ -21,8 +22,17 @@ export const createPaymentIntent = async (req, res) => {
           .status(404)
           .json({ message: `Product not found: ${item.product}` });
 
-      const subTotal = product.price * item.quantity;
+      const subTotal =
+        product.price * item.quantity < 99
+          ? product.price * item.quantity + 20
+          : product.price * item.quantity;
       totalAmount += subTotal;
+    }
+    if (totalAmount < 50) {
+      return res.status(400).json({
+        success: false,
+        message: "Minimum payment amount is ₹50",
+      });
     }
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(totalAmount * 100),
@@ -39,27 +49,83 @@ export const createPaymentIntent = async (req, res) => {
   }
 };
 
+// export const confirmOrder = async (req, res) => {
+//   try {
+//     const { items, address,paymentMethod, paymentIntentId } = req.body;
+//     const customerId = req.user._id;
+
+//     const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+
+//     if (paymentIntent.status !== "succeeded") {
+//       return res.status(400).json({ message: "Payment not completed" });
+//     }
+
+//     let totalAmount = 0;
+//     const orderItems = [];
+//     for (const item of items) {
+//       const product = await Product.findById(item.product);
+//       if (!product)
+//         return res
+//           .status(404)
+//           .json({ message: `Product not found: ${item.product}` });
+
+//       totalAmount += product.price * item.quantity;
+
+//       orderItems.push({
+//         product: product._id,
+//         name: product.name,
+//         price: product.price,
+//         quantity: item.quantity,
+//       });
+//     }
+
+//     const order = await Order.create({
+//       farmer: orderItems[0].product, // TODO: handle multiple farmers properly
+//       customer: customerId,
+//       address,
+//       items: orderItems,
+//       totalAmount,
+//       paymentIntentId,
+//     });
+
+//     res.status(201).json({
+//       message: "Order confirmed successfully",
+//       order,
+//     });
+//   } catch (err) {
+//     console.error("Error confirming order:", err);
+//     res.status(500).json({ message: "Failed to confirm order" });
+//   }
+// };
+
 export const confirmOrder = async (req, res) => {
   try {
-    const { items, address, paymentIntentId } = req.body;
+    const { items, address, paymentMethod, paymentIntentId } = req.body;
     const customerId = req.user._id;
 
-    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
-
-    if (paymentIntent.status !== "succeeded") {
-      return res.status(400).json({ message: "Payment not completed" });
+    // 🛑 Validate cart
+    if (!items || items.length === 0) {
+      return res.status(400).json({ message: "No items in order" });
     }
 
     let totalAmount = 0;
+    let total = 0;
     const orderItems = [];
+
     for (const item of items) {
       const product = await Product.findById(item.product);
-      if (!product)
+      if (!product) {
         return res
           .status(404)
           .json({ message: `Product not found: ${item.product}` });
+      }
 
-      totalAmount += product.price * item.quantity;
+      total += product.price * item.quantity;
+      if (total < 99) {
+        totalAmount += total + 20;
+      } else {
+        totalAmount = total;
+      }
 
       orderItems.push({
         product: product._id,
@@ -69,13 +135,25 @@ export const confirmOrder = async (req, res) => {
       });
     }
 
+    // 🟢 STRIPE FLOW
+    if (paymentMethod === "stripe") {
+      const paymentIntent = await stripe.paymentIntents.retrieve(
+        paymentIntentId
+      );
+
+      if (paymentIntent.status !== "succeeded") {
+        return res.status(400).json({ message: "Payment not completed" });
+      }
+    }
+
+    // 🟢 COD FLOW → skip Stripe, mark as "Pending"
     const order = await Order.create({
       farmer: orderItems[0].product, // TODO: handle multiple farmers properly
       customer: customerId,
       address,
       items: orderItems,
       totalAmount,
-      paymentIntentId,
+      paymentIntentId: paymentMethod === "stripe" ? paymentIntentId : null,
     });
 
     res.status(201).json({

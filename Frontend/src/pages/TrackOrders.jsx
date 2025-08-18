@@ -38,9 +38,7 @@ const TrackOrders = () => {
       );
       console.log("Response from backend:", data);
       setOrders((prev) =>
-        prev.map((order) =>
-          order._id === orderId ? { ...order, status: data.status } : order
-        )
+        prev.map((order) => (order._id === orderId ? data.order : order))
       );
     } catch (err) {
       console.error("Error updating status:", err);
@@ -68,7 +66,7 @@ const TrackOrders = () => {
                 </h3>
                 <p className="text-sm text-gray-600 mt-1">
                   <FaUser className="inline mr-1" />
-                  {order.user?.name || "Unknown Customer"}
+                  {order.customer?.name || "Unknown Customer"}
                 </p>
                 <p className="text-sm text-gray-600">
                   <FaMapMarkerAlt className="inline mr-1" />

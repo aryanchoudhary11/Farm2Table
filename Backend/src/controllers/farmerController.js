@@ -1,6 +1,5 @@
 import Product from "../models/Product.js";
 import Order from "../models/Order.js";
-import { json } from "stream/consumers";
 
 export const addProduct = async (req, res) => {
   try {
@@ -137,7 +136,7 @@ export const getFarmerOrders = async (req, res) => {
         if (filteredItems.length > 0) {
           return {
             _id: order._id,
-            user: order.user,
+            user: order.customer.name,
             items: filteredItems,
             address: order.address,
             status: order.status,
@@ -159,7 +158,9 @@ export const updateOrderStatus = async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
 
-    const order = await Order.findById(id).populate("items.product");
+    const order = await Order.findById(id)
+      .populate("items.product")
+      .populate("customer", "name email");
 
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
@@ -178,9 +179,7 @@ export const updateOrderStatus = async (req, res) => {
     order.status = status;
     await order.save();
 
-    res
-      .status(200)
-      .json({ message: "Order status updated", status: order.status });
+    res.status(200).json({ message: "Order status updated", order });
   } catch (error) {
     console.error("Error updating order status:", error);
     res.status(500).json({ message: error.message });
