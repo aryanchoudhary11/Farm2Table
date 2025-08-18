@@ -9,13 +9,11 @@ const stripe = new Stripe(process.env.STRIPE_KEY_SECRET);
 export const createPaymentIntent = async (req, res) => {
   try {
     const { items, address } = req.body;
-    const customerId = req.body._id;
     if (!items || items.length === 0) {
       return res.status(400).json({ message: "No items in order" });
     }
 
     let totalAmount = 0;
-    const orderItems = [];
     for (const item of items) {
       const product = await Product.findById(item.product);
       if (!product)

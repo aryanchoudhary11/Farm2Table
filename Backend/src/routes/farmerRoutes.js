@@ -29,12 +29,7 @@ router.put(
   updateMyProduct
 );
 router.delete("/my-products/:id", protect, restrictTo("farmer"), deleteProduct);
-router.get("/track-orders", protect, restrictTo("farmer"), getFarmerOrders);
-router.put(
-  "/track-orders/:id",
-  protect,
-  restrictTo("farmer"),
-  updateOrderStatus
-);
+router.get("/orders", protect, restrictTo("farmer"), getFarmerOrders);
+router.put("/orders/:id", protect, restrictTo("farmer"), updateOrderStatus);
 
 export default router;
