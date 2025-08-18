@@ -6,7 +6,7 @@ dotenv.config();
 
 const stripe = new Stripe(process.env.STRIPE_KEY_SECRET);
 
-export const createOrder = async (req, res) => {
+export const createPaymentIntent = async (req, res) => {
   try {
     const { items, address } = req.body;
     const customerId = req.body._id;
@@ -25,6 +25,43 @@ export const createOrder = async (req, res) => {
 
       const subTotal = product.price * item.quantity;
       totalAmount += subTotal;
+    }
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round(totalAmount * 100),
+      currency: "inr",
+    });
+
+    res.status(201).json({
+      clientSecret: paymentIntent.client_secret,
+      totalAmount,
+    });
+  } catch (err) {
+    console.error("Error creating PaymentIntent:", err);
+    res.status(500).json({ message: "Failed to create PaymentIntent" });
+  }
+};
+
+export const confirmOrder = async (req, res) => {
+  try {
+    const { items, address, paymentIntentId } = req.body;
+    const customerId = req.user._id;
+
+    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+
+    if (paymentIntent.status !== "succeeded") {
+      return res.status(400).json({ message: "Payment not completed" });
+    }
+
+    let totalAmount = 0;
+    const orderItems = [];
+    for (const item of items) {
+      const product = await Product.findById(item.product);
+      if (!product)
+        return res
+          .status(404)
+          .json({ message: `Product not found: ${item.product}` });
+
+      totalAmount += product.price * item.quantity;
 
       orderItems.push({
         product: product._id,
@@ -33,29 +70,23 @@ export const createOrder = async (req, res) => {
         quantity: item.quantity,
       });
     }
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(totalAmount * 100),
-      currency: "inr",
-      metadata: { customerId: customerId.toString() },
-    });
 
     const order = await Order.create({
-      farmer: orderItems[0].product, //will improve
+      farmer: orderItems[0].product, // TODO: handle multiple farmers properly
       customer: customerId,
       address,
       items: orderItems,
       totalAmount,
-      paymentIntentId: paymentIntent.id,
+      paymentIntentId,
     });
 
     res.status(201).json({
-      message: "Order created successfully",
-      clientSecret: paymentIntent.client_secret,
+      message: "Order confirmed successfully",
       order,
     });
   } catch (err) {
-    console.error("Error creating order:", err);
-    res.status(500).json({ message: "Failed to create order" });
+    console.error("Error confirming order:", err);
+    res.status(500).json({ message: "Failed to confirm order" });
   }
 };
 

@@ -18,9 +18,10 @@ import ProductDiscovery from "./pages/Customer/ProductDiscovery";
 import CustomerLayout from "./Layout/CustomerLayout";
 import Cart from "./pages/Customer/Cart";
 import Checkout from "./pages/Customer/Checkout";
-import MyOrders from "./pages/Customer/myOrders";
+import MyOrders from "./pages/Customer/MyOrders";
 import MyOrderTrack from "./pages/Customer/MyOrderTrack";
 import RoleProtectedLayout from "./components/ProtectedRoute";
+import StripeProvider from "./components/StripeProvider";
 
 function App() {
   return (
@@ -60,7 +61,14 @@ function App() {
         >
           <Route index element={<ProductDiscovery />} />
           <Route path="cart" element={<Cart />} />
-          <Route path="checkout" element={<Checkout />} />
+          <Route
+            path="checkout"
+            element={
+              <StripeProvider>
+                <Checkout />
+              </StripeProvider>
+            }
+          />
           <Route path="my-orders" element={<MyOrders />} />
           <Route path="track-order/:id" element={<MyOrderTrack />} />
         </Route>

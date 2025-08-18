@@ -2,8 +2,12 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useEffect } from "react";
+import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
+
 const Checkout = () => {
   const navigate = useNavigate();
+  const stripe = useStripe();
+  const elements = useElements();
 
   const [paymentMethod, setPaymentMethod] = useState("wallet");
   const [address, setAddress] = useState("");
@@ -47,38 +51,86 @@ const Checkout = () => {
     if (!address) return setError("Please enter a delivery address!");
     setLoading(true);
     setError("");
+
     try {
       const user = JSON.parse(localStorage.getItem("user"));
       const token = localStorage.getItem("token");
-      const payload = {
-        _id: user._id,
-        items: cartItems.map((i) => ({
-          product: i.product._id,
-          quantity: i.quantity,
-        })),
-        address,
-      };
-      const { data } = await axios.post(
-        "http://localhost:5000/api/products/checkout",
 
-        payload,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      if (paymentMethod === "cod") {
+        const payload = {
+          _id: user._id,
+          items: cartItems.map((i) => ({
+            product: i.product._id,
+            quantity: i.quantity,
+          })),
+          address,
+          paymentMethod: "cod",
+        };
 
-      if (paymentMethod === "wallet") {
-        setSuccessMessage("✅ Order placed successfully!");
+        await axios.post(
+          "http://localhost:5000/api/products/checkout",
+          payload,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        setSuccessMessage("✅ Order placed successfully (COD)!");
         setTimeout(() => navigate("/products/my-orders"), 1500);
-      } else if (paymentMethod === "stripe") {
-        console.log("Stripe Client Secret:", data.clientSecret);
-        setSuccessMessage("✅ Payment initiated! Complete payment on Stripe.");
+      }
+
+      if (paymentMethod === "stripe") {
+        const { data } = await axios.post(
+          "http://localhost:5000/api/products/create-payment-intent",
+          { items: cartItems, address },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        const clientSecret = data?.clientSecret;
+        if (!clientSecret)
+          throw new Error("No client secret returned from backend");
+        const result = await stripe.confirmCardPayment(clientSecret, {
+          payment_method: {
+            card: elements.getElement(CardElement),
+          },
+        });
+
+        if (result.error) {
+          setError(result.error.message);
+        } else if (result.paymentIntent.status === "succeeded") {
+          const payload = {
+            _id: user._id,
+            items: cartItems.map((i) => ({
+              product: i.product._id,
+              quantity: i.quantity,
+            })),
+            address,
+            paymentMethod: "stripe",
+            paymentIntentId: result.paymentIntent.id,
+          };
+
+          await axios.post(
+            "http://localhost:5000/api/products/checkout",
+            payload,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+
+          setSuccessMessage("✅ Payment successful & order placed!");
+          setTimeout(() => navigate("/products/my-orders"), 1500);
+        }
       }
     } catch (err) {
-      console.error(err);
-      setError(err.response?.data?.message || "Failed to place order");
+      console.error("Error confirming order:", err);
+      setError(
+        err.response?.data?.message || err.message || "Failed to place order"
+      );
     } finally {
       setLoading(false);
     }
   };
+
   return (
     <div className="mt-15 p-4 md:p-8 bg-green-50 min-h-screen">
       <h1 className="text-2xl font-bold text-green-800 mb-6">Checkout</h1>
@@ -91,11 +143,11 @@ const Checkout = () => {
             <label className="flex items-center gap-2 mb-2">
               <input
                 type="radio"
-                value="wallet"
-                checked={paymentMethod === "wallet"}
-                onChange={() => setPaymentMethod("wallet")}
+                value="cod"
+                checked={paymentMethod === "cod"}
+                onChange={() => setPaymentMethod("cod")}
               />
-              Pay via Wallet
+              Cash on delivery
             </label>
             <label className="flex items-center gap-2">
               <input
@@ -106,6 +158,11 @@ const Checkout = () => {
               />
               Pay via Stripe
             </label>
+            {paymentMethod === "stripe" && (
+              <div className="border p-2 rounded-lg mt-2">
+                <CardElement />
+              </div>
+            )}
           </div>
           <div className="bg-white shadow border rounded-lg p-4 border-green-800">
             <h2 className="text-lg font-semibold text-green-800 mb-4">
