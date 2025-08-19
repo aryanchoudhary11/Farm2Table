@@ -17,7 +17,7 @@ const Hero = () => {
           Sell your produce directly to nearby customers. Keep more profit.
         </p>
         <Link
-          to="/register?role=farmer"
+          to="/signup"
           className="inline-block bg-green-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-green-700 transition"
         >
           Get Started

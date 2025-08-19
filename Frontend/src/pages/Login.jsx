@@ -89,7 +89,7 @@ const Login = () => {
         <div className="mt-6 text-center text-sm text-gray-700">
           Don't have account?{" "}
           <Link
-            to="/register"
+            to="/signup"
             className="text-green-600 font-medium hover:underline"
           >
             Register here
