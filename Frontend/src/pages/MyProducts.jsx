@@ -99,7 +99,7 @@ const MyProducts = () => {
       }
 
       await API.put(
-        "/api/farmer/my-products/${editProduct.id}",
+        `/api/farmer/my-products/${editProduct.id}`,
         formDataToSend,
         {
           headers: {
