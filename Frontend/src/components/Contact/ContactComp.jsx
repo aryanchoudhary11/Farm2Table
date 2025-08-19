@@ -4,7 +4,7 @@ import "aos/dist/aos.css";
 const Contact = () => {
   useEffect(() => {
     AOS.init({ duration: 800 });
-  });
+  }, []);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -16,7 +16,7 @@ const Contact = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     const { name, email, message } = formData;
     if (!name || !email || !message) {

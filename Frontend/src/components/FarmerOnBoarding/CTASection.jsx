@@ -7,7 +7,7 @@ const CTASection = () => {
         Create your farmer account and start selling in minutes.
       </p>
       <Link
-        to="/register?role=farmer"
+        to="/signup"
         className="bg-green-600 inline-block text-white py-3 px-6 rounded-lg text-lg font-semibold shadow hover:bg-green-700 transition"
       >
         Register as Farmer

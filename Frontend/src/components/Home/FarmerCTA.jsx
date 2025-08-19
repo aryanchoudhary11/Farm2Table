@@ -1,5 +1,7 @@
+import { useNavigate } from "react-router-dom";
 import farmer from "../../assets/farmer.jpg";
 const FarmerCTA = () => {
+  const navigate = useNavigate();
   return (
     <section className="bg-green-900 py-16 px-4">
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-center gap-10">
@@ -19,7 +21,10 @@ const FarmerCTA = () => {
             Join Farm2Table and grow your business directly with local
             customers.
           </p>
-          <button className="bg-white text-green-900 font-semibold py-3 px-6 rounded-lg hover:bg-green-100 transition-all duration-300 cursor-pointer">
+          <button
+            onClick={() => navigate("/signup")}
+            className="bg-white text-green-900 font-semibold py-3 px-6 rounded-lg hover:bg-green-100 transition-all duration-300 cursor-pointer"
+          >
             Become a Farmer Parter
           </button>
         </div>
