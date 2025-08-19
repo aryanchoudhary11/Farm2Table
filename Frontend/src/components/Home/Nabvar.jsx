@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { ShoppingCart } from "lucide-react"; // ✅ nice cart icon
+import { ShoppingCart } from "lucide-react";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-  const user = JSON.parse(localStorage.getItem("user")); // ✅ read user role
+  const user = JSON.parse(localStorage.getItem("user"));
   const location = useLocation();
 
   const toggleMenu = () => setIsOpen(!isOpen);
@@ -26,7 +26,6 @@ const Navbar = () => {
       <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
         <div className="text-2xl font-bold text-green-700">Farm2Table</div>
 
-        {/* Desktop Menu */}
         <div className="hidden md:flex items-center space-x-6 text-gray-800 font-medium">
           <ul className="flex space-x-6 text-lg items-center">
             <li>
@@ -45,7 +44,6 @@ const Navbar = () => {
               </Link>
             </li>
 
-            {/* ✅ Show Cart only if logged in & role is customer */}
             {token && user?.role === "customer" && (
               <li>
                 <Link
@@ -56,7 +54,13 @@ const Navbar = () => {
                 </Link>
               </li>
             )}
-
+            {token && user?.role === "farmer" && (
+              <li>
+                <Link to="/farmer" className=" hover:text-green-600">
+                  Dashboard
+                </Link>
+              </li>
+            )}
             {token ? (
               <li>
                 <button
@@ -83,7 +87,6 @@ const Navbar = () => {
           </ul>
         </div>
 
-        {/* Mobile Toggle */}
         <div className="md:hidden">
           <button
             onClick={toggleMenu}
@@ -122,7 +125,6 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile Menu */}
       {isOpen && (
         <div className="md:hidden bg-white px-4 pb-4 space-y-3 text-gray-800 font-medium">
           <ul className="flex flex-col space-y-3 text-lg">
@@ -142,7 +144,6 @@ const Navbar = () => {
               </Link>
             </li>
 
-            {/* ✅ Mobile Cart */}
             {token && user?.role === "customer" && (
               <li>
                 <Link
