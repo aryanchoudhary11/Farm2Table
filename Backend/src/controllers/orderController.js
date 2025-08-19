@@ -22,18 +22,20 @@ export const createPaymentIntent = async (req, res) => {
           .status(404)
           .json({ message: `Product not found: ${item.product}` });
 
-      const subTotal =
-        product.price * item.quantity < 99
-          ? product.price * item.quantity + 20
-          : product.price * item.quantity;
-      totalAmount += subTotal;
+      totalAmount += product.price * item.quantity;
     }
+
+    // Apply delivery charge ONCE if total < 99
+    if (totalAmount < 99) totalAmount += 20;
+
+    // Reject very small orders
     if (totalAmount < 50) {
       return res.status(400).json({
         success: false,
         message: "Minimum payment amount is ₹50",
       });
     }
+
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(totalAmount * 100),
       currency: "inr",
@@ -58,8 +60,7 @@ export const confirmOrder = async (req, res) => {
       return res.status(400).json({ message: "No items in order" });
     }
 
-    let totalAmount = 0;
-    let total = 0;
+    let subtotal = 0;
     const orderItems = [];
 
     for (const item of items) {
@@ -69,13 +70,16 @@ export const confirmOrder = async (req, res) => {
           .status(404)
           .json({ message: `Product not found: ${item.product}` });
       }
-
-      total += product.price * item.quantity;
-      if (total < 99) {
-        totalAmount += total + 20;
-      } else {
-        totalAmount = total;
+      if (product.quantity < item.quantity) {
+        return res
+          .status(400)
+          .json({ message: `Not enough stock for ${product.name}` });
       }
+
+      product.quantity -= item.quantity;
+      await product.save();
+
+      subtotal += product.price * item.quantity;
 
       orderItems.push({
         product: product._id,
@@ -84,6 +88,7 @@ export const confirmOrder = async (req, res) => {
         quantity: item.quantity,
       });
     }
+    let totalAmount = subtotal < 99 ? subtotal + 20 : subtotal;
 
     if (paymentMethod === "stripe") {
       const paymentIntent = await stripe.paymentIntents.retrieve(

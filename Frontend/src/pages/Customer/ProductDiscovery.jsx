@@ -55,6 +55,7 @@ const ProductDiscovery = () => {
         { productId, quantity },
         { headers: { Authorization: `Bearer ${token}` } }
       );
+
       alert("✅ Product added to cart!");
     } catch (err) {
       console.error("Error adding to cart:", err);
@@ -113,12 +114,12 @@ const ProductDiscovery = () => {
                 </span>
                 <span
                   className={`text-xs px-2 py-1 rounded ${
-                    product.stock > 0
+                    product.quantity > 0
                       ? "bg-green-100 text-green-700"
                       : "bg-red-100 text-red-600"
                   }`}
                 >
-                  {product.stock > 0 ? "In Stock" : "Out of Stock"}
+                  {product.quantity > 0 ? "In Stock" : "Out of Stock"}
                 </span>
               </div>
               <div className="mt-3 flex items-center gap-2">
@@ -136,6 +137,7 @@ const ProductDiscovery = () => {
                     );
                     handleAddToCart(product._id, qty);
                   }}
+                  disabled={product.quantity === 0}
                   className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 cursor-pointer"
                 >
                   🛒 Add to Cart
