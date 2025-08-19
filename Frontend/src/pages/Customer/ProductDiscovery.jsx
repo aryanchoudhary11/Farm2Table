@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import API from "../../api";
+import API_URL from "../../config";
 
 const ProductDiscovery = () => {
   const [userLocation, setUserLocation] = useState("");
@@ -26,7 +27,7 @@ const ProductDiscovery = () => {
       const params = {};
       if (searchTerm) params.search = searchTerm;
       if (selectedCategory) params.category = selectedCategory;
-      const { data } = await axios.get("http://localhost:5000/api/products", {
+      const { data } = await API.get("/api/products", {
         params,
         headers: {
           Authorization: `Bearer ${token}`,
@@ -50,8 +51,8 @@ const ProductDiscovery = () => {
         alert("Please login first to add items to your cart.");
         return;
       }
-      const data = await axios.post(
-        "http://localhost:5000/api/products/cart",
+      const data = await API.post(
+        "/api/products/cart",
         { productId, quantity },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -101,7 +102,7 @@ const ProductDiscovery = () => {
             className=" bg-white shadow-md rounded-lg overflow-hidden"
           >
             <img
-              src={`http://localhost:5000/uploads/products/${product.image}`}
+              src={`${API_URL}/uploads/products/${product.image}`}
               alt={product.name}
               className="w-full h-40 object-cover"
             />

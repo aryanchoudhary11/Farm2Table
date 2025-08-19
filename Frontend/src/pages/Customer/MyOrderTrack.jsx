@@ -1,4 +1,4 @@
-import axios from "axios";
+import API from "../../api";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { FaShoppingCart, FaBox, FaTruck, FaCheck } from "react-icons/fa";
@@ -19,10 +19,9 @@ const TrackOrder = () => {
   const fetchOrder = async () => {
     try {
       const token = localStorage.getItem("token");
-      const { data } = await axios.get(
-        `http://localhost:5000/api/products/track-order/${id}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const { data } = await API.get("/api/products/track-order/${id}", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setOrder(data);
     } catch (err) {
       console.error("Error fetching order:", err);

@@ -6,7 +6,7 @@ import {
   FaEye,
 } from "react-icons/fa";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import API from "../api";
 const FarmerDashboardHome = () => {
   const [stats, setStats] = useState([
     {
@@ -25,20 +25,20 @@ const FarmerDashboardHome = () => {
       icon: <FaWallet className="text-3xl text-green-600" />,
     },
   ]);
-  useEffect(()=>{
-    const fetchDashboardstats = async ()=>{
-      try{
+  useEffect(() => {
+    const fetchDashboardstats = async () => {
+      try {
         const token = localStorage.getItem("token");
-        const { data } = await axios.get("http://localhost:5000/api/farmer", {
-          headers:{
-            Authorization: `Bearer ${token}`
-          }
-        })
+        const { data } = await API.get("/api/farmer", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         setStats([
           {
             title: "Total Products",
             value: data.totalProducts,
-            icon:<FaBox className="text-3xl text-green-600" />,
+            icon: <FaBox className="text-3xl text-green-600" />,
           },
           {
             title: "Orders received",
@@ -48,15 +48,15 @@ const FarmerDashboardHome = () => {
           {
             title: "Wallet Balance",
             value: `₹${data.walletBalance}`,
-            icon: <FaWallet className="text-3xl text-green-600" />
-          }
-        ])
-      }catch(err){
+            icon: <FaWallet className="text-3xl text-green-600" />,
+          },
+        ]);
+      } catch (err) {
         console.error("Error fetching dashboard stats", err);
       }
-    }
-    fetchDashboardstats()
-  },[])
+    };
+    fetchDashboardstats();
+  }, []);
   return (
     <section className="px-4 md:px-8 py-10 md:py-20">
       <h2 className="text-2xl font-bold mb-4">👋 Welcome, Farmer!</h2>

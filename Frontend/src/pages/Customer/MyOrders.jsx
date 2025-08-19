@@ -1,7 +1,7 @@
-import axios from "axios";
+import API from "../../api";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { data, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const statusColors = {
   Pending: "bg-yellow-100 text-yellow-700 border-yellow-300",
@@ -17,10 +17,9 @@ const MyOrders = () => {
   const fetchOrders = async () => {
     try {
       const token = localStorage.getItem("token");
-      const { data } = await axios.get(
-        "http://localhost:5000/api/products/my-orders",
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const { data } = await API.get("/api/products/my-orders", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setOrders(data || []);
     } catch (err) {
       console.error("Error fetching orders:", err);

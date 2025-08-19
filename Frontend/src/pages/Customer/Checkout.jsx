@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import API from "../../api";
 import { useEffect } from "react";
 import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 
@@ -22,12 +22,9 @@ const Checkout = () => {
   const fetchCart = async () => {
     try {
       const token = localStorage.getItem("token");
-      const { data } = await axios.get(
-        "http://localhost:5000/api/products/cart",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const { data } = await API.get("/api/products/cart", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setCartItems(data || []);
       const subTotalCalc = (data || []).reduce(
         (acc, item) => acc + item.product.price * item.quantity,
@@ -67,21 +64,17 @@ const Checkout = () => {
           paymentMethod: "cod",
         };
 
-        await axios.post(
-          "http://localhost:5000/api/products/checkout",
-          payload,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        await API.post("/api/products/checkout", payload, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
         setSuccessMessage("✅ Order placed successfully (COD)!");
         setTimeout(() => navigate("/products/my-orders"), 1500);
       }
 
       if (paymentMethod === "stripe") {
-        const { data } = await axios.post(
-          "http://localhost:5000/api/products/create-payment-intent",
+        const { data } = await API.post(
+          "/api/products/create-payment-intent",
           { items: cartItems, address },
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -109,13 +102,9 @@ const Checkout = () => {
             paymentIntentId: result.paymentIntent.id,
           };
 
-          await axios.post(
-            "http://localhost:5000/api/products/checkout",
-            payload,
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
-          );
+          await API.post("/api/products/checkout", payload, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
 
           setSuccessMessage("✅ Payment successful & order placed!");
           setTimeout(() => navigate("/products/my-orders"), 1500);

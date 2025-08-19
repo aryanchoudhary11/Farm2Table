@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { FaBoxOpen, FaUser, FaMapMarkerAlt, FaClock } from "react-icons/fa";
-import axios from "axios";
+import API from "../api";
 
 const TrackOrders = () => {
   const [orders, setOrders] = useState([]);
@@ -12,12 +12,9 @@ const TrackOrders = () => {
       try {
         setLoading(true);
         const token = localStorage.getItem("token");
-        const { data } = await axios.get(
-          "http://localhost:5000/api/farmer/orders",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const { data } = await API.get("/api/farmer/orders", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         setOrders(data);
       } catch (err) {
         console.error("Error fetching orders:", err);
@@ -31,8 +28,8 @@ const TrackOrders = () => {
   const handleStatusChange = async (orderId, newStatus) => {
     try {
       const token = localStorage.getItem("token");
-      const { data } = await axios.put(
-        `http://localhost:5000/api/farmer/orders/${orderId}`,
+      const { data } = await API.put(
+        `/api/farmer/orders/${orderId}`,
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );

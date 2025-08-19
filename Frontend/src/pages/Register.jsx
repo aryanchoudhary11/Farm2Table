@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import API from "../api";
 const Register = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -21,15 +21,12 @@ const Register = () => {
     }
 
     try {
-      const { data } = await axios.post(
-        "http://localhost:5000/api/auth/register",
-        {
-          name,
-          email,
-          password,
-          role,
-        }
-      );
+      const { data } = await API.post("/api/auth/register", {
+        name,
+        email,
+        password,
+        role,
+      });
       setSuccess("Account created successfully! You can now login.");
       setName("");
       setEmail("");

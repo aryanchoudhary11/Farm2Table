@@ -1,5 +1,5 @@
 import { useState } from "react";
-
+import API_URL from "../config";
 const AddProduct = () => {
   const [message, setMessage] = useState(null);
   const [product, setProduct] = useState({
@@ -35,7 +35,7 @@ const AddProduct = () => {
     formData.append("harvestDate", product.harvestDate);
     formData.append("image", product.image);
 
-    const res = await fetch("http://localhost:5000/api/farmer/add-product", {
+    const res = await fetch(`${API_URL}/api/farmer/add-product`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,

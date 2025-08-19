@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { FaTrash } from "react-icons/fa";
 import Summary from "../../components/Cart/Summary";
-import axios from "axios";
+
+import API from "../../api";
+import API_URL from "../../config";
 
 const Cart = () => {
   const [items, setItems] = useState([]);
@@ -10,12 +12,9 @@ const Cart = () => {
   const fetchCart = async (req, res) => {
     try {
       const token = localStorage.getItem("token");
-      const { data } = await axios.get(
-        "http://localhost:5000/api/products/cart",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const { data } = await API.get("/api/products/cart", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setItems(data);
     } catch (err) {
       console.error("Error fetching cart:", err);
@@ -26,8 +25,8 @@ const Cart = () => {
   const updateQuantity = async (id, quantity) => {
     try {
       const token = localStorage.getItem("token");
-      const { data } = await axios.put(
-        `http://localhost:5000/api/products/cart/${id}`,
+      const { data } = await API.put(
+        `/api/products/cart/${id}`,
         { quantity },
         {
           headers: {
@@ -48,8 +47,8 @@ const Cart = () => {
   const removeItem = async (id) => {
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(
-        `http://localhost:5000/api/products/cart/${id}`,
+      await API.delete(
+        `/api/products/cart/${id}`,
 
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -81,7 +80,7 @@ const Cart = () => {
                 key={item._id}
               >
                 <img
-                  src={`http://localhost:5000/uploads/products/${item.product.image}`}
+                  src={`${API_URL}/uploads/products/${item.product.image}`}
                   alt={item.product.name}
                   className="w-20 object-cover rounded-lg border"
                 />

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
-import axios from "axios";
+import API from "../api";
+import API_URL from "../config";
 import toast, { Toaster } from "react-hot-toast";
 
 const getStock = (qty) => {
@@ -32,12 +33,9 @@ const MyProducts = () => {
   const fetchProducts = async () => {
     try {
       const token = localStorage.getItem("token");
-      const { data } = await axios.get(
-        "http://localhost:5000/api/farmer/my-products",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const { data } = await API.get("/api/farmer/my-products", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       setProducts(Array.isArray(data) ? data : data.products || []);
     } catch (error) {
@@ -100,8 +98,8 @@ const MyProducts = () => {
         formDataToSend.append("image", formData.image);
       }
 
-      await axios.put(
-        `http://localhost:5000/api/farmer/my-products/${editProduct.id}`,
+      await API.put(
+        "/api/farmer/my-products/${editProduct.id}",
         formDataToSend,
         {
           headers: {
@@ -123,12 +121,9 @@ const MyProducts = () => {
   const handleDelete = async (productId) => {
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(
-        `http://localhost:5000/api/farmer/my-products/${productId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      await API.delete(`/api/farmer/my-products/${productId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       setProducts((prevProducts) =>
         prevProducts.filter((product) => product.id !== productId)
@@ -185,7 +180,7 @@ const MyProducts = () => {
               >
                 <td className="p-3">
                   <img
-                    src={`http://localhost:5000/uploads/products/${product.image}`}
+                    src={`${API_URL}/uploads/products/${product.image}`}
                     alt={product.name}
                     className="h-12 object-cover rounded"
                   />
