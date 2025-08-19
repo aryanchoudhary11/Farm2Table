@@ -1,12 +1,15 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { ShoppingCart } from "lucide-react"; // ✅ nice cart icon
+
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
+  const user = JSON.parse(localStorage.getItem("user")); // ✅ read user role
+  const location = useLocation();
 
   const toggleMenu = () => setIsOpen(!isOpen);
-  const location = useLocation();
 
   useEffect(() => {
     setIsOpen(false);
@@ -14,14 +17,18 @@ const Navbar = () => {
 
   const logoutHandler = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     navigate("/");
   };
+
   return (
     <nav className="bg-white shadow-md fixed top-0 left-0 w-full z-50">
       <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
         <div className="text-2xl font-bold text-green-700">Farm2Table</div>
+
+        {/* Desktop Menu */}
         <div className="hidden md:flex items-center space-x-6 text-gray-800 font-medium">
-          <ul className="flex space-x-6 text-lg">
+          <ul className="flex space-x-6 text-lg items-center">
             <li>
               <Link to="/" className="hover:text-green-600">
                 Home
@@ -37,6 +44,19 @@ const Navbar = () => {
                 Contact
               </Link>
             </li>
+
+            {/* ✅ Show Cart only if logged in & role is customer */}
+            {token && user?.role === "customer" && (
+              <li>
+                <Link
+                  to="/products/cart"
+                  className="flex items-center hover:text-green-600"
+                >
+                  <ShoppingCart className="w-6 h-6" />
+                </Link>
+              </li>
+            )}
+
             {token ? (
               <li>
                 <button
@@ -62,6 +82,8 @@ const Navbar = () => {
             )}
           </ul>
         </div>
+
+        {/* Mobile Toggle */}
         <div className="md:hidden">
           <button
             onClick={toggleMenu}
@@ -99,9 +121,11 @@ const Navbar = () => {
           </button>
         </div>
       </div>
+
+      {/* Mobile Menu */}
       {isOpen && (
         <div className="md:hidden bg-white px-4 pb-4 space-y-3 text-gray-800 font-medium">
-          <ul className="flex space-x-6 text-lg">
+          <ul className="flex flex-col space-y-3 text-lg">
             <li>
               <Link to="/" className="hover:text-green-600">
                 Home
@@ -117,20 +141,47 @@ const Navbar = () => {
                 Contact
               </Link>
             </li>
-            <li>
-              <Link to="/login" className="hover:text-green-600">
-                Login
-              </Link>
-            </li>
-            <li>
-              <Link to="/signup" className="hover:text-green-600">
-                Sign Up
-              </Link>
-            </li>
+
+            {/* ✅ Mobile Cart */}
+            {token && user?.role === "customer" && (
+              <li>
+                <Link
+                  to="/products/cart"
+                  className="flex items-center hover:text-green-600"
+                >
+                  <ShoppingCart className="w-6 h-6 mr-1" /> Cart
+                </Link>
+              </li>
+            )}
+
+            {token ? (
+              <li>
+                <button
+                  onClick={logoutHandler}
+                  className="hover:text-green-600 cursor-pointer"
+                >
+                  Logout
+                </button>
+              </li>
+            ) : (
+              <div className="flex space-x-6 text-lg">
+                <li>
+                  <Link to="/login" className="hover:text-green-600">
+                    Login
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/signup" className="hover:text-green-600">
+                    Sign Up
+                  </Link>
+                </li>
+              </div>
+            )}
           </ul>
         </div>
       )}
     </nav>
   );
 };
+
 export default Navbar;
