@@ -19,7 +19,7 @@ const TrackOrder = () => {
   const fetchOrder = async () => {
     try {
       const token = localStorage.getItem("token");
-      const { data } = await API.get("/api/products/track-order/${id}", {
+      const { data } = await API.get(`/api/products/track-order/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setOrder(data);
@@ -50,10 +50,8 @@ const TrackOrder = () => {
       </h1>
 
       <div className="relative max-w-4xl mx-auto">
-        {/* Background line */}
         <div className="absolute top-[24px] left-0 w-full h-1 bg-gray-300 z-0"></div>
 
-        {/* Filled line */}
         <motion.div
           className="absolute top-[24px] left-0 h-1 bg-green-600 z-0"
           initial={{ width: 0 }}
@@ -61,7 +59,6 @@ const TrackOrder = () => {
           transition={{ duration: 0.8 }}
         ></motion.div>
 
-        {/* Steps */}
         <div className="flex justify-between relative z-10">
           {steps.map((step, index) => (
             <div key={index} className="flex flex-col items-center">
