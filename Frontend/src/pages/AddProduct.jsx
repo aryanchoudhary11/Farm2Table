@@ -1,5 +1,6 @@
 import { useState } from "react";
 import API_URL from "../config";
+
 const AddProduct = () => {
   const [message, setMessage] = useState(null);
   const [product, setProduct] = useState({
@@ -10,50 +11,94 @@ const AddProduct = () => {
     category: "",
     image: null,
   });
+
   const categories = ["Vegetables", "Fruits", "Dairy", "Organic"];
   const [imagePreview, setImagePreview] = useState(null);
 
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
+
     if (type === "file") {
       const file = files[0];
-      setProduct({ ...product, image: file });
-      setImagePreview(URL.createObjectURL(file));
+      if (file) {
+        setProduct({ ...product, image: file });
+        setImagePreview(URL.createObjectURL(file));
+      }
     } else {
       setProduct({ ...product, [name]: value });
     }
   };
+
   const token = localStorage.getItem("token");
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setMessage(null);
 
-    const formData = new FormData();
-    formData.append("name", product.name);
-    formData.append("price", product.price);
-    formData.append("quantity", product.quantity);
-    formData.append("category", product.category);
-    formData.append("harvestDate", product.harvestDate);
-    formData.append("image", product.image);
+    // 🔒 Basic validation
+    if (
+      !product.name ||
+      !product.price ||
+      !product.quantity ||
+      !product.category ||
+      !product.harvestDate ||
+      !product.image
+    ) {
+      setMessage("❌ Please fill all fields including image");
+      return;
+    }
 
-    const res = await fetch(`${API_URL}/api/farmer/add-product`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: formData,
-    });
+    try {
+      const formData = new FormData();
+      formData.append("name", product.name);
+      formData.append("price", product.price);
+      formData.append("quantity", product.quantity);
+      formData.append("category", product.category);
+      formData.append("harvestDate", product.harvestDate);
+      formData.append("image", product.image);
 
-    const data = await res.json();
-    setMessage("✅ Product added successfully!");
-    setProduct({
-      name: "",
-      quantity: "",
-      price: "",
-      harvestDate: "",
-      category: "",
-      image: null,
-    });
-    setImagePreview(null);
+      const res = await fetch(`${API_URL}/api/farmer/add-product`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      // 🔥 SAFE JSON PARSING
+      let data;
+      try {
+        data = await res.json();
+      } catch (err) {
+        console.error("❌ Invalid JSON from backend");
+        setMessage("❌ Server error: No response from backend");
+        return;
+      }
+
+      // 🔥 Handle backend errors
+      if (!res.ok) {
+        setMessage(data?.message || "❌ Failed to add product");
+        return;
+      }
+
+      // ✅ SUCCESS
+      setMessage("✅ Product added successfully!");
+
+      // Reset form
+      setProduct({
+        name: "",
+        quantity: "",
+        price: "",
+        harvestDate: "",
+        category: "",
+        image: null,
+      });
+
+      setImagePreview(null);
+    } catch (error) {
+      console.error("❌ Request failed:", error);
+      setMessage("❌ Network error. Please try again.");
+    }
   };
 
   return (
@@ -61,6 +106,7 @@ const AddProduct = () => {
       <h2 className="text-xl sm:text-2xl font-bold mb-4 text-center sm:text-left">
         Add New Product
       </h2>
+
       {message && (
         <p className="mb-4 font-semibold text-center sm:text-left">{message}</p>
       )}
@@ -85,6 +131,7 @@ const AddProduct = () => {
             onChange={handleChange}
             className="w-full"
           />
+
           {imagePreview && (
             <img
               src={imagePreview}
@@ -96,7 +143,7 @@ const AddProduct = () => {
 
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <label className="block mb-1 font-medium">Quantity in Stock</label>
+            <label className="block mb-1 font-medium">Quantity</label>
             <input
               type="number"
               name="quantity"
@@ -105,8 +152,9 @@ const AddProduct = () => {
               className="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-green-600"
             />
           </div>
+
           <div>
-            <label className="block mb-1 font-medium">Price per Unit</label>
+            <label className="block mb-1 font-medium">Price</label>
             <input
               type="number"
               name="price"
@@ -138,7 +186,7 @@ const AddProduct = () => {
           >
             <option value="">Select Category</option>
             {categories.map((cat) => (
-              <option value={cat} key={cat}>
+              <option key={cat} value={cat}>
                 {cat}
               </option>
             ))}
