@@ -1,33 +1,54 @@
-import AOS from "aos";
-import "aos/dist/aos.css";
 import marketImg from "../../assets/farmers-market.jpg";
-import { useEffect } from "react";
 
 const Intro = () => {
-  useEffect(() => {
-    AOS.init({ duration: 800 });
-  }, []);
   return (
-    <section className="bg-[#f1f8f4] py-16 px-6 md:px-20 flex flex-col-reverse md:flex-row items-center gap-10 mt-6">
-      <div data-aos="fade-right" className="flex-1">
-        <h2 className="text-3xl md:text-4xl font-bold text-green-800 mb-4">
-          Empowering Farmers. Nourishing Communities.
-        </h2>
-        <p className="text-gray-700 text-lg leading-relaxed">
+    <section className="bg-white pt-24 pb-16 px-4">
+      <div className="max-w-5xl mx-auto">
+        {/* Page label */}
+        <span className="text-xs font-semibold tracking-widest uppercase text-green-600 block mb-6 text-center">
+          About Farm2Table
+        </span>
+
+        {/* Headline */}
+        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 text-center leading-tight mb-6 max-w-3xl mx-auto">
+          Empowering farmers.
+          <br />
+          <span className="text-green-700">Nourishing communities.</span>
+        </h1>
+
+        <p className="text-base md:text-lg text-gray-500 text-center max-w-2xl mx-auto mb-14 leading-relaxed">
           Farm2Table is a hyperlocal marketplace connecting local farmers
-          directly to consumers. We believe in ethical sourcing, fair pricing,
-          and fresh, unprocessed food.
+          directly to consumers — built on ethical sourcing, fair pricing, and
+          food the way it should be.
         </p>
-      </div>
-      <div data-aos="fade-left" className="relative w-full max-w-md mx-auto">
-        <div className="absolute inset-0 rounded-xl blur-xl bg-gradient-to-br from-green-300 to-green-500 opacity-30 animate-pulse z-0"></div>
-        <img
-          src={marketImg}
-          alt="Farmers' market"
-          className="relative z-10 w-full rounded-xl shadow-xl"
-        />
+
+        {/* Image */}
+        <div className="relative rounded-2xl overflow-hidden">
+          <img
+            src={marketImg}
+            alt="Farmers' market"
+            className="w-full h-[420px] object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+          <div className="absolute bottom-6 left-6 right-6 flex flex-wrap gap-4">
+            {[
+              { value: "500+", label: "Local farmers" },
+              { value: "12k+", label: "Happy customers" },
+              { value: "2hr", label: "Average delivery" },
+            ].map(({ value, label }) => (
+              <div
+                key={label}
+                className="bg-white/90 backdrop-blur-sm rounded-xl px-5 py-3"
+              >
+                <p className="text-lg font-bold text-green-800">{value}</p>
+                <p className="text-xs text-gray-500">{label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );
 };
+
 export default Intro;

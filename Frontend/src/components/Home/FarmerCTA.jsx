@@ -1,35 +1,64 @@
 import { useNavigate } from "react-router-dom";
-import farmer from "../../assets/farmer.jpg";
+import { ArrowRight } from "lucide-react";
+
+const stats = [
+  { value: "500+", label: "Farmers onboard" },
+  { value: "0%", label: "Commission (first 3 mo.)" },
+  { value: "~2hr", label: "Average delivery time" },
+  { value: "4.9★", label: "Average farmer rating" },
+];
+
 const FarmerCTA = () => {
   const navigate = useNavigate();
+
   return (
-    <section className="bg-green-900 py-16 px-4">
-      <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-center gap-10">
-        <div className="w-full md:w-1/2 flex justify-center ">
-          <div className="absolute w-[300px] md:w-[400px] h-[300px] md:h-[400px] bg-gradient-to-tr from-green-500 via-lime-400 to-green-700 blur-2xl opacity-20 rounded-full z-0 animate-pulse"></div>
-          <img
-            src={farmer}
-            alt="Farmer"
-            className="relative z-10 w-[300px] md:w-[400px] object-contain rounded-xl shadow-lg transition-transform duration-500 hover:scale-105"
-          />
-        </div>
-        <div className="w-full md:w-1/2 text-center md:text-left">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-            Are you a Local Farmer?
+    <section className="bg-green-950 py-20 px-4">
+      <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        {/* Copy */}
+        <div>
+          <span className="text-xs font-semibold tracking-widest uppercase text-green-400 block mb-4">
+            For farmers
+          </span>
+          <h2 className="text-3xl md:text-4xl font-bold text-green-50 mb-5 leading-snug">
+            Sell directly to customers who care where their food comes from.
           </h2>
-          <p className="text-white text-base md:text-lg mb-6">
-            Join Farm2Table and grow your business directly with local
-            customers.
+          <p className="text-green-300 text-base mb-8 leading-relaxed">
+            Join hundreds of local farmers already growing their business on
+            Farm2Table. No commissions on your first 3 months, and no middlemen
+            — ever.
           </p>
-          <button
-            onClick={() => navigate("/signup")}
-            className="bg-white text-green-900 font-semibold py-3 px-6 rounded-lg hover:bg-green-100 transition-all duration-300 cursor-pointer"
-          >
-            Become a Farmer Parter
-          </button>
+          <div className="flex flex-wrap gap-3">
+            <button
+              onClick={() => navigate("/signup")}
+              className="flex items-center gap-2 bg-green-400 hover:bg-green-300 text-green-950 font-semibold py-3 px-6 rounded-xl transition-colors duration-200"
+            >
+              Start selling today
+              <ArrowRight className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => navigate("/about")}
+              className="text-green-300 border border-green-700 hover:border-green-500 hover:text-green-100 font-semibold py-3 px-6 rounded-xl transition-colors duration-200"
+            >
+              Learn more
+            </button>
+          </div>
+        </div>
+
+        {/* Stats grid */}
+        <div className="grid grid-cols-2 gap-4">
+          {stats.map(({ value, label }) => (
+            <div
+              key={label}
+              className="bg-green-900/40 border border-green-800 rounded-2xl p-5 text-center"
+            >
+              <p className="text-3xl font-bold text-green-300 mb-1">{value}</p>
+              <p className="text-xs text-green-500">{label}</p>
+            </div>
+          ))}
         </div>
       </div>
     </section>
   );
 };
+
 export default FarmerCTA;

@@ -1,19 +1,24 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, Menu, X } from "lucide-react";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const user = JSON.parse(localStorage.getItem("user"));
   const location = useLocation();
 
-  const toggleMenu = () => setIsOpen(!isOpen);
-
   useEffect(() => {
     setIsOpen(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const logoutHandler = () => {
     localStorage.removeItem("token");
@@ -22,167 +27,152 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white shadow-md fixed top-0 left-0 w-full z-50">
-      <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-        <div className="text-2xl font-bold text-green-700">Farm2Table</div>
+    <nav
+      className={`fixed top-0 left-0 w-full z-50 bg-white transition-shadow duration-200 ${
+        scrolled ? "shadow-sm" : ""
+      } border-b border-gray-100`}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        {/* Logo */}
+        <Link to="/" className="flex items-center gap-2 shrink-0">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" fill="#3B6D11" />
+            <path
+              d="M8 14c0-4 2.5-6 4-6s4 2 4 6"
+              stroke="#fff"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            />
+            <path
+              d="M12 8v8"
+              stroke="#fff"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            />
+          </svg>
+          <span className="text-[17px] font-semibold text-green-800 tracking-tight">
+            Farm2Table
+          </span>
+        </Link>
 
-        <div className="hidden md:flex items-center space-x-6 text-gray-800 font-medium">
-          <ul className="flex space-x-6 text-lg items-center">
-            <li>
-              <Link to="/" className="hover:text-green-600">
-                Home
-              </Link>
-            </li>
-            <li>
-              <Link to="/about" className="hover:text-green-600">
-                About
-              </Link>
-            </li>
-            <li>
-              <Link to="/contact" className="hover:text-green-600">
-                Contact
-              </Link>
-            </li>
+        {/* Desktop nav */}
+        <div className="hidden md:flex items-center gap-1">
+          <NavLink to="/">Home</NavLink>
+          <NavLink to="/about">About</NavLink>
+          <NavLink to="/contact">Contact</NavLink>
 
-            {token && user?.role === "customer" && (
-              <li>
-                <Link
-                  to="/products/cart"
-                  className="flex items-center hover:text-green-600"
-                >
-                  <ShoppingCart className="w-6 h-6" />
-                </Link>
-              </li>
-            )}
-            {token && user?.role === "farmer" && (
-              <li>
-                <Link to="/farmer" className=" hover:text-green-600">
-                  Dashboard
-                </Link>
-              </li>
-            )}
+          {token && user?.role === "farmer" && (
+            <NavLink to="/farmer">Dashboard</NavLink>
+          )}
+
+          {token && user?.role === "customer" && (
+            <Link
+              to="/products/cart"
+              className="p-2 rounded-lg text-gray-500 hover:text-green-700 hover:bg-green-50 transition-colors"
+              aria-label="Cart"
+            >
+              <ShoppingCart className="w-5 h-5" />
+            </Link>
+          )}
+
+          <div className="ml-3 flex items-center gap-2">
             {token ? (
-              <li>
-                <button
-                  onClick={logoutHandler}
-                  className="hover:text-green-600 cursor-pointer"
-                >
-                  Logout
-                </button>
-              </li>
+              <button
+                onClick={logoutHandler}
+                className="text-sm font-medium text-gray-600 hover:text-green-700 transition-colors px-3 py-2 rounded-lg hover:bg-green-50"
+              >
+                Log out
+              </button>
             ) : (
-              <div className="flex space-x-6 text-lg">
-                <li>
-                  <Link to="/login" className="hover:text-green-600">
-                    Login
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/signup" className="hover:text-green-600">
-                    Sign Up
-                  </Link>
-                </li>
-              </div>
+              <>
+                <Link
+                  to="/login"
+                  className="text-sm font-medium text-gray-600 hover:text-green-700 transition-colors px-3 py-2 rounded-lg hover:bg-green-50"
+                >
+                  Log in
+                </Link>
+                <Link
+                  to="/signup"
+                  className="text-sm font-medium bg-green-700 text-white px-4 py-2 rounded-lg hover:bg-green-800 transition-colors"
+                >
+                  Sign up
+                </Link>
+              </>
             )}
-          </ul>
+          </div>
         </div>
 
-        <div className="md:hidden">
-          <button
-            onClick={toggleMenu}
-            className="text-green-700 focus:outline-none cursor-pointer"
-          >
-            {isOpen ? (
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            ) : (
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
-            )}
-          </button>
-        </div>
+        {/* Mobile hamburger */}
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="md:hidden p-2 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors"
+          aria-label="Toggle menu"
+        >
+          {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        </button>
       </div>
 
+      {/* Mobile drawer */}
       {isOpen && (
-        <div className="md:hidden bg-white px-4 pb-4 space-y-3 text-gray-800 font-medium">
-          <ul className="flex flex-col space-y-3 text-lg">
-            <li>
-              <Link to="/" className="hover:text-green-600">
-                Home
-              </Link>
-            </li>
-            <li>
-              <Link to="/about" className="hover:text-green-600">
-                About
-              </Link>
-            </li>
-            <li>
-              <Link to="/contact" className="hover:text-green-600">
-                Contact
-              </Link>
-            </li>
+        <div className="md:hidden bg-white border-t border-gray-100 px-4 pt-3 pb-5 space-y-1">
+          <MobileNavLink to="/">Home</MobileNavLink>
+          <MobileNavLink to="/about">About</MobileNavLink>
+          <MobileNavLink to="/contact">Contact</MobileNavLink>
 
-            {token && user?.role === "customer" && (
-              <li>
-                <Link
-                  to="/products/cart"
-                  className="flex items-center hover:text-green-600"
-                >
-                  <ShoppingCart className="w-6 h-6 mr-1" /> Cart
-                </Link>
-              </li>
-            )}
+          {token && user?.role === "farmer" && (
+            <MobileNavLink to="/farmer">Dashboard</MobileNavLink>
+          )}
+          {token && user?.role === "customer" && (
+            <MobileNavLink to="/products/cart">Cart</MobileNavLink>
+          )}
 
+          <div className="pt-3 border-t border-gray-100 mt-3">
             {token ? (
-              <li>
-                <button
-                  onClick={logoutHandler}
-                  className="hover:text-green-600 cursor-pointer"
-                >
-                  Logout
-                </button>
-              </li>
+              <button
+                onClick={logoutHandler}
+                className="w-full text-left text-sm font-medium text-gray-600 px-3 py-2 rounded-lg hover:bg-gray-50"
+              >
+                Log out
+              </button>
             ) : (
-              <div className="flex space-x-6 text-lg">
-                <li>
-                  <Link to="/login" className="hover:text-green-600">
-                    Login
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/signup" className="hover:text-green-600">
-                    Sign Up
-                  </Link>
-                </li>
+              <div className="flex flex-col gap-2">
+                <Link
+                  to="/login"
+                  className="text-sm font-medium text-center border border-gray-200 text-gray-700 px-4 py-2.5 rounded-lg hover:bg-gray-50"
+                >
+                  Log in
+                </Link>
+                <Link
+                  to="/signup"
+                  className="text-sm font-medium text-center bg-green-700 text-white px-4 py-2.5 rounded-lg hover:bg-green-800"
+                >
+                  Sign up
+                </Link>
               </div>
             )}
-          </ul>
+          </div>
         </div>
       )}
     </nav>
   );
 };
+
+const NavLink = ({ to, children }) => (
+  <Link
+    to={to}
+    className="text-sm font-medium text-gray-600 hover:text-green-700 px-3 py-2 rounded-lg hover:bg-green-50 transition-colors"
+  >
+    {children}
+  </Link>
+);
+
+const MobileNavLink = ({ to, children }) => (
+  <Link
+    to={to}
+    className="block text-sm font-medium text-gray-700 px-3 py-2.5 rounded-lg hover:bg-green-50 hover:text-green-700"
+  >
+    {children}
+  </Link>
+);
 
 export default Navbar;

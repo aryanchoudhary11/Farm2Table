@@ -1,35 +1,57 @@
-import AOS from "aos";
-import { useEffect } from "react";
-import "aos/dist/aos.css";
+import { useState } from "react";
+
 const Newsletter = () => {
-  useEffect(() => {
-    AOS.init({ duration: 800 });
-  }, []);
+  const [email, setEmail] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!email) return;
+    setSubmitted(true);
+  };
+
   return (
-    <section className="bg-green-100 py-12 px-4 md:px-10 " data-aos="zoom-in">
-      <div className="max-w-4xl mx-auto text-center">
-        <h2 className="text-3xl md:text-4xl font-bold text-green-900 mb-4">
-          Want fresh Updates?
+    <section className="bg-white py-16 px-4 border-t border-gray-100">
+      <div className="max-w-xl mx-auto text-center">
+        <span className="text-xs font-semibold tracking-widest uppercase text-green-600 block mb-3">
+          Stay in the loop
+        </span>
+        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
+          Fresh updates in your inbox
         </h2>
-        <p className="text-gray-700 mb-6">
-          Subscribe to get fresh produce deals & local farm news!
+        <p className="text-gray-500 text-sm mb-8">
+          Weekly deals, harvest updates, and new farmer spotlights. No spam —
+          unsubscribe any time.
         </p>
+
+        {submitted ? (
+          <div className="bg-green-50 border border-green-200 rounded-xl p-5 text-green-800 font-medium text-sm">
+            You're on the list! We'll be in touch soon.
+          </div>
+        ) : (
+          <form
+            onSubmit={handleSubmit}
+            className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
+          >
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="your@email.com"
+              required
+              className="flex-1 px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-300 focus:border-transparent placeholder-gray-400"
+            />
+            <button
+              type="submit"
+              className="bg-green-700 hover:bg-green-800 text-white font-semibold px-6 py-3 rounded-xl text-sm transition-colors duration-200 whitespace-nowrap"
+            >
+              Subscribe
+            </button>
+          </form>
+        )}
       </div>
-      <form className="flex flex-col sm:flex-row justify-center items-center gap-4">
-        <input
-          type="email"
-          placeholder="Enter Your Email..."
-          className="w-full sm:w-2/3 px-5 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-3  focus:ring-green-400 transition"
-          required
-        />
-        <button
-          type="submit"
-          className="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition cursor-pointer"
-        >
-          Subscribe
-        </button>
-      </form>
     </section>
   );
 };
+
 export default Newsletter;
