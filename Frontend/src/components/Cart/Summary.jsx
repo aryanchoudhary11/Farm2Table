@@ -1,32 +1,59 @@
 import { useNavigate } from "react-router-dom";
+import { ArrowRight, Truck } from "lucide-react";
+
 const Summary = ({ subTotal, deliveryFee }) => {
   const total = subTotal + deliveryFee;
   const navigate = useNavigate();
+
   return (
-    <div className="bg-white rounded-lg p-6 shadow border border-green-100">
-      <h2 className="text-xl font-semibold mb-4 text-green-800">
-        Order Summary
+    <div className="bg-white rounded-2xl border border-gray-100 p-6 h-fit sticky top-24">
+      <h2 className="text-base font-semibold text-gray-900 mb-5">
+        Order summary
       </h2>
-      <div className="flex justify-between text-gray-700 mb-2">
-        <span>Subtotal</span>
-        <span>₹{subTotal}</span>
+
+      <div className="space-y-3 mb-5">
+        <div className="flex justify-between text-sm text-gray-500">
+          <span>Subtotal</span>
+          <span className="text-gray-800 font-medium">₹{subTotal}</span>
+        </div>
+        <div className="flex justify-between text-sm text-gray-500">
+          <span className="flex items-center gap-1.5">
+            <Truck className="w-3.5 h-3.5" />
+            Delivery
+          </span>
+          {deliveryFee === 0 ? (
+            <span className="text-green-600 font-medium text-sm">Free</span>
+          ) : (
+            <span className="text-gray-800 font-medium">₹{deliveryFee}</span>
+          )}
+        </div>
       </div>
-      <div className="flex justify-between text-gray-700 mb-2">
-        <span>Delivery Fee</span>
-        <span>₹{deliveryFee}</span>
+
+      <div className="border-t border-gray-100 pt-4 mb-6">
+        <div className="flex justify-between items-center">
+          <span className="text-sm font-semibold text-gray-900">Total</span>
+          <span className="text-xl font-bold text-gray-900">₹{total}</span>
+        </div>
+        {deliveryFee === 0 && subTotal > 0 && (
+          <p className="text-xs text-green-600 mt-1 text-right">
+            You saved ₹20 on delivery
+          </p>
+        )}
       </div>
-      <hr className="my-2" />
-      <div className="flex justify-between font-bold text-green-800 text-lg mb-4">
-        <span>Total</span>
-        <span>₹{total}</span>
-      </div>
+
       <button
         onClick={() => navigate("/products/checkout")}
-        className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition duration-200 cursor-pointer"
+        className="w-full bg-green-700 hover:bg-green-800 text-white py-3 rounded-xl font-semibold text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer"
       >
-        Proceed to CheckOut
+        Proceed to checkout
+        <ArrowRight className="w-4 h-4" />
       </button>
+
+      <p className="text-xs text-gray-400 text-center mt-4">
+        Orders over ₹99 get free delivery
+      </p>
     </div>
   );
 };
+
 export default Summary;
