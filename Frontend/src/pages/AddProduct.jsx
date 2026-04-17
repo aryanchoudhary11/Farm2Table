@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { Upload, X, CheckCircle } from "lucide-react";
 import API_URL from "../config";
 
+const CATEGORIES = ["Vegetables", "Fruits", "Dairy", "Organic"];
+
 const AddProduct = () => {
-  const [message, setMessage] = useState(null);
   const [product, setProduct] = useState({
     name: "",
     quantity: "",
@@ -11,80 +13,74 @@ const AddProduct = () => {
     category: "",
     image: null,
   });
-
-  const categories = ["Vegetables", "Fruits", "Dairy", "Organic"];
   const [imagePreview, setImagePreview] = useState(null);
+  const [status, setStatus] = useState(null); // { type: 'success'|'error', msg }
+  const [submitting, setSubmitting] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
-
     if (type === "file") {
       const file = files[0];
       if (file) {
-        setProduct({ ...product, image: file });
+        setProduct((p) => ({ ...p, image: file }));
         setImagePreview(URL.createObjectURL(file));
       }
     } else {
-      setProduct({ ...product, [name]: value });
+      setProduct((p) => ({ ...p, [name]: value }));
     }
   };
 
-  const token = localStorage.getItem("token");
+  const clearImage = () => {
+    setProduct((p) => ({ ...p, image: null }));
+    setImagePreview(null);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage(null);
+    setStatus(null);
 
-    // 🔒 Basic validation
-    if (
-      !product.name ||
-      !product.price ||
-      !product.quantity ||
-      !product.category ||
-      !product.harvestDate ||
-      !product.image
-    ) {
-      setMessage("❌ Please fill all fields including image");
+    const { name, price, quantity, category, harvestDate, image } = product;
+    if (!name || !price || !quantity || !category || !harvestDate || !image) {
+      setStatus({
+        type: "error",
+        msg: "Please fill in all fields and upload an image.",
+      });
       return;
     }
 
+    setSubmitting(true);
     try {
+      const token = localStorage.getItem("token");
       const formData = new FormData();
-      formData.append("name", product.name);
-      formData.append("price", product.price);
-      formData.append("quantity", product.quantity);
-      formData.append("category", product.category);
-      formData.append("harvestDate", product.harvestDate);
-      formData.append("image", product.image);
+      formData.append("name", name);
+      formData.append("price", price);
+      formData.append("quantity", quantity);
+      formData.append("category", category);
+      formData.append("harvestDate", harvestDate);
+      formData.append("image", image);
 
       const res = await fetch(`${API_URL}/api/farmer/add-product`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
 
-      // 🔥 SAFE JSON PARSING
       let data;
       try {
         data = await res.json();
-      } catch (err) {
-        console.error("❌ Invalid JSON from backend");
-        setMessage("❌ Server error: No response from backend");
-        return;
+      } catch {
+        /* empty */
       }
 
-      // 🔥 Handle backend errors
       if (!res.ok) {
-        setMessage(data?.message || "❌ Failed to add product");
+        setStatus({
+          type: "error",
+          msg: data?.message || "Failed to add product.",
+        });
         return;
       }
 
-      // ✅ SUCCESS
-      setMessage("✅ Product added successfully!");
-
-      // Reset form
+      setStatus({ type: "success", msg: "Product added successfully!" });
       setProduct({
         name: "",
         quantity: "",
@@ -93,114 +89,176 @@ const AddProduct = () => {
         category: "",
         image: null,
       });
-
       setImagePreview(null);
-    } catch (error) {
-      console.error("❌ Request failed:", error);
-      setMessage("❌ Network error. Please try again.");
+    } catch {
+      setStatus({ type: "error", msg: "Network error. Please try again." });
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
-    <div className="max-w-3xl mx-auto bg-white p-4 sm:p-6 rounded shadow mt-15">
-      <h2 className="text-xl sm:text-2xl font-bold mb-4 text-center sm:text-left">
-        Add New Product
-      </h2>
+    <section className="py-8 mt-10">
+      <div className="mb-8">
+        <p className="text-xs font-semibold tracking-widest uppercase text-green-600 mb-1">
+          Inventory
+        </p>
+        <h1 className="text-2xl font-bold text-gray-900">Add new product</h1>
+        <p className="text-sm text-gray-400 mt-1">
+          List a new product for customers to discover and order.
+        </p>
+      </div>
 
-      {message && (
-        <p className="mb-4 font-semibold text-center sm:text-left">{message}</p>
-      )}
-
-      <form onSubmit={handleSubmit} className="grid gap-4">
-        <div>
-          <label className="block mb-1 font-medium">Product Name</label>
-          <input
-            type="text"
-            name="name"
-            value={product.name}
-            onChange={handleChange}
-            className="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-green-600"
-          />
-        </div>
-
-        <div>
-          <label className="block mb-1 font-medium">Product Image</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleChange}
-            className="w-full"
-          />
-
-          {imagePreview && (
-            <img
-              src={imagePreview}
-              alt="Preview"
-              className="mt-2 h-32 w-full object-cover rounded"
-            />
-          )}
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-2">
-          <div>
-            <label className="block mb-1 font-medium">Quantity</label>
-            <input
-              type="number"
-              name="quantity"
-              value={product.quantity}
-              onChange={handleChange}
-              className="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-green-600"
-            />
-          </div>
-
-          <div>
-            <label className="block mb-1 font-medium">Price</label>
-            <input
-              type="number"
-              name="price"
-              value={product.price}
-              onChange={handleChange}
-              className="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-green-600"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block mb-1 font-medium">Harvest Date</label>
-          <input
-            type="date"
-            name="harvestDate"
-            value={product.harvestDate}
-            onChange={handleChange}
-            className="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-green-600"
-          />
-        </div>
-
-        <div>
-          <label className="block mb-1 font-medium">Category</label>
-          <select
-            name="category"
-            value={product.category}
-            onChange={handleChange}
-            className="w-full border border-gray-300 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-green-600"
+      <div className="bg-white rounded-2xl border border-gray-100 p-6 max-w-2xl">
+        {status && (
+          <div
+            className={`flex items-center gap-2 text-sm rounded-xl px-4 py-3 mb-5 ${
+              status.type === "error"
+                ? "bg-red-50 border border-red-100 text-red-600"
+                : "bg-green-50 border border-green-200 text-green-700"
+            }`}
           >
-            <option value="">Select Category</option>
-            {categories.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
-              </option>
-            ))}
-          </select>
-        </div>
+            {status.type === "success" && (
+              <CheckCircle className="w-4 h-4 flex-shrink-0" />
+            )}
+            {status.msg}
+          </div>
+        )}
 
-        <button
-          type="submit"
-          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
-        >
-          Add Product
-        </button>
-      </form>
-    </div>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Product name */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              Product name
+            </label>
+            <input
+              type="text"
+              name="name"
+              value={product.name}
+              onChange={handleChange}
+              placeholder="e.g. Fresh Tomatoes"
+              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-300 focus:border-transparent placeholder-gray-300"
+            />
+          </div>
+
+          {/* Image upload */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              Product image
+            </label>
+            {imagePreview ? (
+              <div className="relative w-full h-44 rounded-xl overflow-hidden border border-gray-200">
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="w-full h-full object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={clearImage}
+                  className="absolute top-2 right-2 w-7 h-7 bg-white/90 rounded-full flex items-center justify-center text-gray-500 hover:text-red-500 shadow-sm"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ) : (
+              <label className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-green-400 hover:bg-green-50/50 transition-colors">
+                <Upload className="w-6 h-6 text-gray-300 mb-2" />
+                <span className="text-sm text-gray-400">
+                  Click to upload image
+                </span>
+                <span className="text-xs text-gray-300 mt-0.5">
+                  PNG, JPG up to 5MB
+                </span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleChange}
+                  className="hidden"
+                />
+              </label>
+            )}
+          </div>
+
+          {/* Quantity + Price */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                Quantity (units)
+              </label>
+              <input
+                type="number"
+                name="quantity"
+                value={product.quantity}
+                onChange={handleChange}
+                placeholder="0"
+                min="0"
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-300 focus:border-transparent placeholder-gray-300"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                Price (₹)
+              </label>
+              <input
+                type="number"
+                name="price"
+                value={product.price}
+                onChange={handleChange}
+                placeholder="0"
+                min="0"
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-300 focus:border-transparent placeholder-gray-300"
+              />
+            </div>
+          </div>
+
+          {/* Harvest date + Category */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                Harvest date
+              </label>
+              <input
+                type="date"
+                name="harvestDate"
+                value={product.harvestDate}
+                onChange={handleChange}
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-300 focus:border-transparent text-gray-700"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                Category
+              </label>
+              <select
+                name="category"
+                value={product.category}
+                onChange={handleChange}
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-300 focus:border-transparent text-gray-700 bg-white"
+              >
+                <option value="">Select category</option>
+                {CATEGORIES.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={submitting}
+            className="w-full bg-green-700 hover:bg-green-800 disabled:opacity-60 text-white font-semibold py-3 rounded-xl text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer"
+          >
+            {submitting && (
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            )}
+            {submitting ? "Adding product..." : "Add product"}
+          </button>
+        </form>
+      </div>
+    </section>
   );
 };
 

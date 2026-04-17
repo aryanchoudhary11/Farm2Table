@@ -36,26 +36,7 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Left panel */}
-      <div className="hidden lg:flex lg:w-1/2 bg-green-950 flex-col justify-between p-12">
-        <div className="flex items-center gap-2">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-            <circle cx="12" cy="12" r="10" fill="#4ade80" />
-            <path
-              d="M8 14c0-4 2.5-6 4-6s4 2 4 6"
-              stroke="#052e16"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-            />
-            <path
-              d="M12 8v8"
-              stroke="#052e16"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-            />
-          </svg>
-          <span className="text-white font-semibold text-lg">Farm2Table</span>
-        </div>
-
+      <div className="hidden lg:flex lg:w-1/2 bg-green-950 flex-col justify-between p-20 mt-10">
         <div>
           <p className="text-green-300 text-xs font-semibold tracking-widest uppercase mb-4">
             Hyperlocal marketplace

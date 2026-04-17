@@ -131,7 +131,7 @@ export const getFarmerOrders = async (req, res) => {
       .map((order) => {
         const filteredItems = order.items.filter(
           (i) =>
-            i.product && i.product.farmer.toString() === farmerId.toString()
+            i.product && i.product.farmer.toString() === farmerId.toString(),
         );
         if (filteredItems.length > 0) {
           return {
@@ -143,6 +143,7 @@ export const getFarmerOrders = async (req, res) => {
             items: filteredItems,
             address: order.address,
             status: order.status,
+            totalAmount: order.totalAmount,
             createdAt: order.createdAt,
           };
           return null;
@@ -171,7 +172,7 @@ export const updateOrderStatus = async (req, res) => {
 
     const farmerId = req.user._id;
     const ownsProduct = order.items.some(
-      (i) => i.product && i.product.farmer.toString() === farmerId.toString()
+      (i) => i.product && i.product.farmer.toString() === farmerId.toString(),
     );
     if (!ownsProduct) {
       return res

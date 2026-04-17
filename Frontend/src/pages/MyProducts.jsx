@@ -1,30 +1,46 @@
 import { useState, useEffect } from "react";
-import { FiEdit, FiTrash2 } from "react-icons/fi";
+import { Pencil, Trash2, X } from "lucide-react";
 import API from "../api";
 import API_URL from "../config";
 import toast, { Toaster } from "react-hot-toast";
 
-const getStock = (qty) => {
-  if (qty === 0) return "Out of Stock";
-  if (qty < 5) return "Low Stock";
-  return "In Stock";
+const stockLabel = (qty) => {
+  if (qty === 0)
+    return {
+      text: "Out of stock",
+      classes: "bg-red-50 text-red-600 border-red-100",
+    };
+  if (qty < 5)
+    return {
+      text: "Low stock",
+      classes: "bg-amber-50 text-amber-600 border-amber-100",
+    };
+  return {
+    text: "In stock",
+    classes: "bg-green-50 text-green-700 border-green-100",
+  };
 };
-const getStockColor = (qty) => {
-  if (qty === 0) return "bg-red-100 text-red-600";
-  if (qty < 5) return "bg-yellow-100 text-yellow-600";
-  return "bg-green-100 text-green-600";
-};
+
+const SORT_OPTIONS = [
+  { value: "", label: "Default" },
+  { value: "Name", label: "Name (A–Z)" },
+  { value: "Price (Low to High)", label: "Price: low to high" },
+  { value: "Price (High to Low)", label: "Price: high to low" },
+  { value: "Stock", label: "Stock" },
+];
 
 const MyProducts = () => {
   const [products, setProducts] = useState([]);
-  const [editProduct, setEditProduct] = useState(null);
   const [sortOption, setSortOption] = useState("");
+  const [editProduct, setEditProduct] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
     quantity: "",
     price: "",
     image: "",
   });
+  const [saving, setSaving] = useState(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
   useEffect(() => {
     fetchProducts();
@@ -36,10 +52,8 @@ const MyProducts = () => {
       const { data } = await API.get("/api/farmer/my-products", {
         headers: { Authorization: `Bearer ${token}` },
       });
-
       setProducts(Array.isArray(data) ? data : data.products || []);
-    } catch (error) {
-      console.error("Error fetching products:", error);
+    } catch {
       setProducts([]);
     }
   };
@@ -47,31 +61,25 @@ const MyProducts = () => {
   const handleSortChange = (e) => {
     const option = e.target.value;
     setSortOption(option);
-
-    let sortedProducts = [...products];
-
-    switch (option) {
-      case "Name":
-        sortedProducts.sort((a, b) => a.name.localeCompare(b.name));
-        break;
-      case "Price (Low to High)":
-        sortedProducts.sort((a, b) => a.price - b.price);
-        break;
-      case "Price (High to Low)":
-        sortedProducts.sort((a, b) => b.price - a.price);
-        break;
-      case "Stock":
-        sortedProducts.sort((a, b) => b.quantity - a.quantity);
-        break;
-      default:
-        fetchProducts();
-        return;
+    if (!option) {
+      fetchProducts();
+      return;
     }
-
-    setProducts(sortedProducts);
+    setProducts((prev) => {
+      const sorted = [...prev];
+      if (option === "Name")
+        sorted.sort((a, b) => a.name.localeCompare(b.name));
+      else if (option === "Price (Low to High)")
+        sorted.sort((a, b) => a.price - b.price);
+      else if (option === "Price (High to Low)")
+        sorted.sort((a, b) => b.price - a.price);
+      else if (option === "Stock")
+        sorted.sort((a, b) => b.quantity - a.quantity);
+      return sorted;
+    });
   };
 
-  const handleEditClick = (product) => {
+  const openEdit = (product) => {
     setEditProduct(product);
     setFormData({
       name: product.name,
@@ -81,40 +89,29 @@ const MyProducts = () => {
     });
   };
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
   const handleSaveEdit = async () => {
+    setSaving(true);
     try {
       const token = localStorage.getItem("token");
+      const fd = new FormData();
+      fd.append("name", formData.name);
+      fd.append("quantity", formData.quantity);
+      fd.append("price", formData.price);
+      if (formData.image instanceof File) fd.append("image", formData.image);
 
-      const formDataToSend = new FormData();
-      formDataToSend.append("name", formData.name);
-      formDataToSend.append("quantity", formData.quantity);
-      formDataToSend.append("price", formData.price);
-
-      if (formData.image instanceof File) {
-        formDataToSend.append("image", formData.image);
-      }
-
-      await API.put(
-        `/api/farmer/my-products/${editProduct.id}`,
-        formDataToSend,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
+      await API.put(`/api/farmer/my-products/${editProduct.id}`, fd, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
       setEditProduct(null);
       fetchProducts();
-      toast.success("Product updated successfully!");
-    } catch (error) {
-      console.error("Error updating product:", error);
-      toast.error("Failed to update product");
+      toast.success("Product updated.");
+    } catch {
+      toast.error("Failed to update product.");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -124,157 +121,250 @@ const MyProducts = () => {
       await API.delete(`/api/farmer/my-products/${productId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
-      setProducts((prevProducts) =>
-        prevProducts.filter((product) => product.id !== productId)
-      );
-
-      toast.success("Product deleted successfully!");
-    } catch (error) {
-      console.error("Error deleting product:", error);
-      toast.error("Failed to delete product");
+      setProducts((prev) => prev.filter((p) => p.id !== productId));
+      setDeleteConfirmId(null);
+      toast.success("Product deleted.");
+    } catch {
+      toast.error("Failed to delete product.");
     }
   };
 
   return (
-    <div>
-      <Toaster position="top-right" />
+    <section className="py-8 mt-10">
+      <Toaster
+        position="top-right"
+        toastOptions={{ style: { fontSize: "13px" } }}
+      />
 
-      <h2 className="text-xl font-bold mb-4 mt-15 text-green-600">
-        My Products
-      </h2>
+      <div className="mb-8">
+        <p className="text-xs font-semibold tracking-widest uppercase text-green-600 mb-1">
+          Inventory
+        </p>
+        <h1 className="text-2xl font-bold text-gray-900">My products</h1>
+        <p className="text-sm text-gray-400 mt-1">
+          {products.length} products listed
+        </p>
+      </div>
 
-      <div className="flex justify-between items-center mb-4">
-        <p className="text-gray-500">{products.length} products listed</p>
+      {/* Sort bar */}
+      <div className="flex justify-end mb-4">
         <select
-          className="border p-2 rounded text-sm px-2"
           value={sortOption}
           onChange={handleSortChange}
+          className="border border-gray-200 rounded-xl px-3 py-2 text-sm bg-white text-gray-600 focus:outline-none focus:ring-2 focus:ring-green-300"
         >
-          <option value="">Sort by</option>
-          <option value="Name">Name</option>
-          <option value="Price (Low to High)">Price (Low to High)</option>
-          <option value="Price (High to Low)">Price (High to Low)</option>
-          <option value="Stock">Stock</option>
+          {SORT_OPTIONS.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
         </select>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white shadow rounded-lg">
-          <thead className="bg-green-100 text-left text-sm text-gray-600">
-            <tr>
-              <th className="p-3">Image</th>
-              <th className="p-3">Name</th>
-              <th className="p-3">Quantity</th>
-              <th className="p-3">Price (₹)</th>
-              <th className="p-3">Stock</th>
-              <th className="p-3">Last updated</th>
-              <th className="p-3">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="text-sm text-gray-700">
-            {products.map((product) => (
-              <tr
-                key={product.id}
-                className="border-t hover:bg-gray-50 transition-all"
-              >
-                <td className="p-3">
-                  <img
-                    src={`${API_URL}/uploads/products/${product.image}`}
-                    alt={product.name}
-                    className="h-12 object-cover rounded"
-                  />
-                </td>
-                <td className="p-3 font-medium">{product.name}</td>
-                <td className="p-3">{product.quantity}</td>
-                <td className="p-3">{product.price}</td>
-                <td className="p-3">
-                  <span
-                    className={`px-2 py-1 text-xs rounded ${getStockColor(
-                      product.quantity
-                    )}`}
-                  >
-                    {getStock(product.quantity)}
-                  </span>
-                </td>
-                <td className="p-3">{product.lastUpdated}</td>
-                <td className="p-3 flex gap-2">
-                  <button
-                    className="text-blue-600 hover:text-blue-800 cursor-pointer"
-                    onClick={() => handleEditClick(product)}
-                  >
-                    <FiEdit />
-                  </button>
-                  <button
-                    className="text-red-600 hover:text-red-800 cursor-pointer"
-                    onClick={() => handleDelete(product.id)}
-                  >
-                    <FiTrash2 />
-                  </button>
-                </td>
+      {/* Table */}
+      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-sm">
+            <thead>
+              <tr className="border-b border-gray-100 bg-gray-50 text-xs font-semibold tracking-wide uppercase text-gray-400">
+                <th className="px-5 py-3.5 text-left">Product</th>
+                <th className="px-5 py-3.5 text-left">Category</th>
+                <th className="px-5 py-3.5 text-right">Price</th>
+                <th className="px-5 py-3.5 text-right">Qty</th>
+                <th className="px-5 py-3.5 text-left">Stock</th>
+                <th className="px-5 py-3.5 text-left">Updated</th>
+                <th className="px-5 py-3.5 text-right">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {products.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={7}
+                    className="px-5 py-12 text-center text-sm text-gray-400"
+                  >
+                    No products listed yet.
+                  </td>
+                </tr>
+              ) : (
+                products.map((product) => {
+                  const stock = stockLabel(product.quantity);
+                  return (
+                    <tr
+                      key={product.id}
+                      className="hover:bg-gray-50/60 transition-colors"
+                    >
+                      <td className="px-5 py-3.5">
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={`${API_URL}/uploads/products/${product.image}`}
+                            alt={product.name}
+                            className="w-10 h-10 rounded-xl object-cover flex-shrink-0"
+                          />
+                          <span className="font-medium text-gray-800">
+                            {product.name}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-5 py-3.5 text-gray-500">
+                        {product.category || "—"}
+                      </td>
+                      <td className="px-5 py-3.5 text-right font-semibold text-gray-800">
+                        ₹{product.price}
+                      </td>
+                      <td className="px-5 py-3.5 text-right text-gray-600">
+                        {product.quantity}
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <span
+                          className={`inline-block text-xs font-semibold border px-2.5 py-0.5 rounded-full ${stock.classes}`}
+                        >
+                          {stock.text}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3.5 text-gray-400 text-xs">
+                        {product.lastUpdated
+                          ? new Date(product.lastUpdated).toLocaleDateString(
+                              "en-IN",
+                              { day: "numeric", month: "short" },
+                            )
+                          : "—"}
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <div className="flex items-center gap-2 justify-end">
+                          <button
+                            onClick={() => openEdit(product)}
+                            className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                            title="Edit"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => setDeleteConfirmId(product.id)}
+                            className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                            title="Delete"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
+      {/* Edit modal */}
       {editProduct && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-            <h3 className="text-lg font-bold mb-4 text-green-600">
-              Edit Product
-            </h3>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="Product Name"
-              className="w-full border p-2 mb-2 rounded"
-            />
-            <input
-              type="number"
-              name="quantity"
-              value={formData.quantity}
-              onChange={handleChange}
-              placeholder="Quantity"
-              className="w-full border p-2 mb-2 rounded"
-            />
-            <input
-              type="number"
-              name="price"
-              value={formData.price}
-              onChange={handleChange}
-              placeholder="Price"
-              className="w-full border p-2 mb-2 rounded"
-            />
-
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) =>
-                setFormData({ ...formData, image: e.target.files[0] })
-              }
-            />
-
-            <div className="flex justify-end gap-2">
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <div
+            className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+            onClick={() => setEditProduct(null)}
+          />
+          <div className="relative bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-base font-bold text-gray-900">
+                Edit product
+              </h3>
               <button
                 onClick={() => setEditProduct(null)}
-                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+                className="text-gray-300 hover:text-gray-500"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="space-y-3">
+              {[
+                { name: "name", label: "Product name", type: "text" },
+                { name: "quantity", label: "Quantity", type: "number" },
+                { name: "price", label: "Price (₹)", type: "number" },
+              ].map(({ name, label, type }) => (
+                <div key={name}>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">
+                    {label}
+                  </label>
+                  <input
+                    type={type}
+                    name={name}
+                    value={formData[name]}
+                    onChange={(e) =>
+                      setFormData((p) => ({ ...p, [name]: e.target.value }))
+                    }
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300 focus:border-transparent"
+                  />
+                </div>
+              ))}
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-1">
+                  New image (optional)
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) =>
+                    setFormData((p) => ({ ...p, image: e.target.files[0] }))
+                  }
+                  className="text-sm text-gray-500"
+                />
+              </div>
+            </div>
+            <div className="flex gap-3 mt-5">
+              <button
+                onClick={() => setEditProduct(null)}
+                className="flex-1 border border-gray-200 text-gray-600 text-sm font-medium py-2.5 rounded-xl hover:bg-gray-50"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveEdit}
-                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                disabled={saving}
+                className="flex-1 bg-green-700 hover:bg-green-800 disabled:opacity-60 text-white text-sm font-semibold py-2.5 rounded-xl transition-colors"
               >
-                Save
+                {saving ? "Saving..." : "Save changes"}
               </button>
             </div>
           </div>
         </div>
       )}
-    </div>
+
+      {/* Delete confirmation modal */}
+      {deleteConfirmId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <div
+            className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+            onClick={() => setDeleteConfirmId(null)}
+          />
+          <div className="relative bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
+            <div className="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center mb-4">
+              <Trash2 className="w-5 h-5 text-red-500" />
+            </div>
+            <h3 className="text-base font-bold text-gray-900 mb-1">
+              Delete product?
+            </h3>
+            <p className="text-sm text-gray-400 mb-5">
+              This will permanently remove the product from your listings.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setDeleteConfirmId(null)}
+                className="flex-1 border border-gray-200 text-gray-600 text-sm font-medium py-2.5 rounded-xl hover:bg-gray-50"
+              >
+                Keep it
+              </button>
+              <button
+                onClick={() => handleDelete(deleteConfirmId)}
+                className="flex-1 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold py-2.5 rounded-xl transition-colors"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </section>
   );
 };
 
