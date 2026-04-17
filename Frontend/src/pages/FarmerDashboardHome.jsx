@@ -64,7 +64,7 @@ const FarmerDashboardHome = () => {
   }, []);
 
   return (
-    <section className="py-8 mt-10">
+    <section className="py-8 mt-10 px-32">
       {/* Greeting */}
       <div className="mb-8">
         <p className="text-xs font-semibold tracking-widest uppercase text-green-600 mb-1">
@@ -127,13 +127,6 @@ const FarmerDashboardHome = () => {
             className="flex items-center gap-2 border border-gray-200 hover:bg-gray-50 text-gray-700 text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors"
           >
             My products
-            <ArrowRight className="w-4 h-4" />
-          </a>
-          <a
-            href="/farmer/orders"
-            className="flex items-center gap-2 border border-gray-200 hover:bg-gray-50 text-gray-700 text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors"
-          >
-            Track Orders
             <ArrowRight className="w-4 h-4" />
           </a>
         </div>

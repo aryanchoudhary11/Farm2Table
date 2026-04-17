@@ -54,7 +54,6 @@ const Login = () => {
 
         <div className="flex gap-6">
           {[
-            ["500+", "Local farms"],
             ["2hr", "Avg delivery"],
             ["0%", "Middlemen"],
           ].map(([val, label]) => (

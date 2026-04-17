@@ -2,7 +2,6 @@ import { useNavigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 
 const stats = [
-  { value: "500+", label: "Farmers onboard" },
   { value: "0%", label: "Commission (first 3 mo.)" },
   { value: "~2hr", label: "Average delivery time" },
   { value: "4.9★", label: "Average farmer rating" },

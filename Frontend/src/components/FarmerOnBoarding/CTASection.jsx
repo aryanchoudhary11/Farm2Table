@@ -21,7 +21,6 @@ const CTASection = () => {
         {/* Stats row */}
         <div className="flex flex-wrap justify-center gap-8 mb-10">
           {[
-            ["500+", "Farmers onboard"],
             ["0%", "Commission (3 mo.)"],
             ["4.9★", "Avg. farmer rating"],
           ].map(([value, label]) => (

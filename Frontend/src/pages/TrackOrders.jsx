@@ -30,11 +30,13 @@ const nextStatus = {
   Packed: "Out for Delivery",
   "Out for Delivery": "Delivered",
 };
+
 const nextLabel = {
   Pending: "Mark as packed",
   Packed: "Mark out for delivery",
   "Out for Delivery": "Mark delivered",
 };
+
 const nextButtonColor = {
   Pending: "bg-blue-600 hover:bg-blue-700",
   Packed: "bg-purple-600 hover:bg-purple-700",
@@ -73,6 +75,7 @@ const TrackOrders = () => {
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } },
       );
+
       setOrders((prev) =>
         prev.map((o) => (o._id === orderId ? data.order : o)),
       );
@@ -85,7 +88,7 @@ const TrackOrders = () => {
 
   if (loading) {
     return (
-      <section className="py-8 flex items-center justify-center py-24">
+      <section className="flex items-center justify-center py-24">
         <div className="flex flex-col items-center gap-3 text-gray-400">
           <div className="w-8 h-8 border-2 border-green-600 border-t-transparent rounded-full animate-spin" />
           <p className="text-sm">Loading orders...</p>
@@ -95,25 +98,28 @@ const TrackOrders = () => {
   }
 
   return (
-    <section className="py-8 mt-10">
-      <div className="mb-8">
-        <p className="text-xs font-semibold tracking-widest uppercase text-green-600 mb-1">
+    <section className="py-8 mt-10 px-32">
+      {/* HEADER */}
+      <div className="mb-10">
+        <p className="text-xs font-semibold uppercase tracking-widest text-green-600">
           Orders
         </p>
-        <h1 className="text-2xl font-bold text-gray-900">Track orders</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mt-1">Track Orders</h1>
         {orders.length > 0 && (
-          <p className="text-sm text-gray-400 mt-1">
+          <p className="text-sm text-gray-400 mt-2">
             {orders.length} orders received
           </p>
         )}
       </div>
 
+      {/* ERROR */}
       {error && (
-        <div className="bg-red-50 border border-red-100 text-red-600 text-sm rounded-xl px-4 py-3 mb-5">
+        <div className="bg-red-50 border border-red-100 text-red-600 text-sm rounded-xl px-4 py-3 mb-6">
           {error}
         </div>
       )}
 
+      {/* EMPTY STATE */}
       {orders.length === 0 ? (
         <div className="bg-white rounded-2xl border border-gray-100 py-20 flex flex-col items-center text-center">
           <div className="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center mb-4">
@@ -127,7 +133,7 @@ const TrackOrders = () => {
           </p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-6">
           {orders.map((order) => {
             const config = statusConfig[order.status] || statusConfig.Pending;
             const next = nextStatus[order.status];
@@ -135,82 +141,99 @@ const TrackOrders = () => {
             return (
               <div
                 key={order._id}
-                className="bg-white rounded-2xl border border-gray-100 p-5"
+                className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm hover:shadow-md transition"
               >
-                {/* Top row */}
-                <div className="flex items-start justify-between gap-4 mb-4">
-                  <div className="min-w-0">
-                    <p className="text-xs text-gray-400 font-mono mb-1">
+                {/* TOP */}
+                <div className="flex justify-between items-start mb-5">
+                  <div>
+                    <p className="text-xs text-gray-400">Order ID</p>
+                    <p className="text-sm font-semibold text-gray-800">
                       #{order._id.slice(-8).toUpperCase()}
                     </p>
-                    <div className="flex flex-wrap gap-3 text-xs text-gray-500">
-                      <span className="flex items-center gap-1">
-                        <User className="w-3 h-3" />
+
+                    <div className="mt-3 space-y-1 text-sm text-gray-500">
+                      <p className="flex items-center gap-2">
+                        <User className="w-4 h-4" />
                         {order.customer?.name || "Unknown customer"}
-                      </span>
+                      </p>
+
                       {order.address && (
-                        <span className="flex items-center gap-1">
-                          <MapPin className="w-3 h-3" />
-                          <span className="truncate max-w-[160px]">
-                            {order.address}
-                          </span>
-                        </span>
+                        <p className="flex items-center gap-2">
+                          <MapPin className="w-4 h-4" />
+                          {order.address}
+                        </p>
                       )}
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
+
+                      <p className="flex items-center gap-2">
+                        <Clock className="w-4 h-4" />
                         {new Date(order.createdAt).toLocaleDateString("en-IN", {
                           day: "numeric",
                           month: "short",
                           year: "numeric",
                         })}
-                      </span>
+                      </p>
                     </div>
                   </div>
 
+                  {/* STATUS */}
                   <span
-                    className={`flex-shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-semibold ${config.classes}`}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border ${config.classes}`}
                   >
-                    <span
-                      className={`w-1.5 h-1.5 rounded-full ${config.dot}`}
-                    />
+                    <span className={`w-2 h-2 rounded-full ${config.dot}`} />
                     {order.status}
                   </span>
                 </div>
 
-                {/* Items */}
-                <div className="bg-gray-50 rounded-xl px-4 py-3 mb-4">
-                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">
-                    Items
+                {/* ITEMS */}
+                <div className="bg-gray-50 rounded-2xl p-4 mb-5">
+                  <p className="text-xs font-semibold text-gray-400 uppercase mb-3">
+                    Order Items
                   </p>
-                  <div className="space-y-1">
+
+                  <div className="divide-y divide-gray-200">
                     {order.items.map((item, idx) => (
-                      <div key={idx} className="flex justify-between text-sm">
-                        <span className="text-gray-700">
-                          {item.product?.name || "Unknown product"}
-                        </span>
-                        <span className="text-gray-400">× {item.quantity}</span>
+                      <div
+                        key={idx}
+                        className="flex justify-between items-center py-2"
+                      >
+                        <div>
+                          <p className="text-sm font-medium text-gray-800">
+                            {item.product?.name || "Unknown product"}
+                          </p>
+                          <p className="text-xs text-gray-400">
+                            ₹{item.price} × {item.quantity}
+                          </p>
+                        </div>
+
+                        <p className="text-sm font-semibold text-gray-700">
+                          ₹{item.price * item.quantity}
+                        </p>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                {/* Footer */}
+                {/* FOOTER */}
                 <div className="flex items-center justify-between">
-                  <p className="text-base font-bold text-gray-900">
-                    ₹{order.totalAmount ?? "Not available"}
-                  </p>
+                  <div>
+                    <p className="text-xs text-gray-400">Total Amount</p>
+                    <p className="text-xl font-bold text-green-600">
+                      ₹{order.totalAmount ?? "0"}
+                    </p>
+                  </div>
+
                   {next && (
                     <button
                       onClick={() => handleStatusChange(order._id, next)}
                       disabled={updatingId === order._id}
-                      className={`flex items-center gap-1.5 ${nextButtonColor[order.status]} disabled:opacity-50 text-white text-xs font-semibold px-4 py-2 rounded-xl transition-colors cursor-pointer`}
+                      className={`flex items-center gap-2 ${nextButtonColor[order.status]} disabled:opacity-50 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition`}
                     >
                       {updatingId === order._id ? (
-                        <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                       ) : (
                         <>
                           {nextLabel[order.status]}
-                          <ChevronRight className="w-3.5 h-3.5" />
+                          <ChevronRight className="w-4 h-4" />
                         </>
                       )}
                     </button>

@@ -32,7 +32,6 @@ const Intro = () => {
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
           <div className="absolute bottom-6 left-6 right-6 flex flex-wrap gap-4">
             {[
-              { value: "500+", label: "Local farmers" },
               { value: "12k+", label: "Happy customers" },
               { value: "2hr", label: "Average delivery" },
             ].map(({ value, label }) => (
